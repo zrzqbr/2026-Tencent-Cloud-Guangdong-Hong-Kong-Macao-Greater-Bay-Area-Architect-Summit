@@ -1,0 +1,4 @@
+interface:
+  display_name: "粤港澳架构师峰会 PPT"
+  short_description: "使用峰会品牌背景、字体、色彩与标识，自由构建专业演示文稿"
+  default_prompt: "Use $create-gba-architect-summit-slides to create a branded summit presentation from my content."

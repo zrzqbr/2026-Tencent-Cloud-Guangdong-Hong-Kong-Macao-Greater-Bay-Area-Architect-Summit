@@ -9,7 +9,7 @@ Apply font colors by semantic role exactly as observed in the source deck. Do no
 | Slide title | `#FD9D50` | Page title, content-page heading |
 | Section title | `#FD9D50` | Chapter name, section divider title |
 | Chinese subtitle or thematic phrase | `#FD9D50` | Short supporting headline below a title |
-| Speaker/person name | `#FD9D50` | Name on introduction page |
+| Speaker/person name after slide 3 | `#FD9D50` | Name on a dedicated introduction page |
 | Key label or title-level number | `#FD9D50` | Chapter number, highlighted index, major KPI label |
 | Chinese explanatory body | `#FFFFFF` | Paragraphs, descriptions, bullet content |
 | English explanatory body | `#FFFFFF` | Supporting paragraph, source note when readable |
@@ -20,12 +20,13 @@ Apply font colors by semantic role exactly as observed in the source deck. Do no
 
 ## Strict Rules
 
+- On slide 2, the complete speaker field, including `主讲人：` and any supplied name, is the fixed `#FFFFFF` exception required by the template contract.
 - Set all normal slide and section titles to `#FD9D50`. Do not use white titles merely for variety.
 - Set all Chinese body copy to `#FFFFFF`. Do not use gray, pale blue, or orange for normal explanatory paragraphs.
 - Keep a title orange and its explanation white even when the composition or container structure changes.
 - Use orange only for title-level hierarchy, short emphasis, selected names, and major identifiers. Do not color entire paragraphs orange.
 - Use `#FFE7B9` only for the closing-page primary message or an exceptionally soft ceremonial phrase. Do not use it as a routine subtitle color.
-- Treat `#F9FBFA` as visually equivalent to white and use it only when preserving an existing source element. Use `#FFFFFF` for newly created text.
+- Normalize near-white source text such as `#F9FBFA` to the required `#FFFFFF`; do not preserve near-white variants in a delivered deck.
 - Do not use gradients, multicolor letters, glowing text, outlined display text, or decorative text shadows.
 
 ## Rare Exception

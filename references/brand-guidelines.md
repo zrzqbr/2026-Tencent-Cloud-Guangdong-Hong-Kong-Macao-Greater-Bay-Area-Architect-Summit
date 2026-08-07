@@ -1,12 +1,14 @@
 # Brand Guidelines
 
+For the fixed first three slides, always follow [template-contract.md](template-contract.md). It overrides any general composition guidance below.
+
 ## Visual Principle
 
 Express a technology summit rooted in the Greater Bay Area: deep maritime blue, city silhouettes, warm orange-gold light, wave motifs, and an energetic urban-future atmosphere. Preserve this identity while allowing each presentation to develop its own information architecture.
 
 ## Canvas And Backgrounds
 
-- Format: widescreen 16:9, designed around 1920 x 1080 source artwork.
+- Format: widescreen 16:9, designed around 1920 x 1080 source artwork. Preserve the source deck's 20 x 11.25 inch canvas when editing it; use 13.333 x 7.5 inches for newly generated standard widescreen decks.
 - Primary content field: dark navy with a subtle city/harbor scene and ample low-contrast space for content.
 - Cover and closing pages: use the full illustrated streetscape and wave artwork.
 - Section pages: use a branded blue background with a stronger wave accent or event-title marker.
@@ -24,7 +26,7 @@ Use these observed source-deck colors as the core palette:
 | Text on dark | `#FFFFFF` | Main body and high-priority labels |
 | Soft warm highlight | `#FFE7B9` | Supporting emphasis and closing-page warmth |
 | Muted text | `#A7A7A7` or `#8B8C8C` | Secondary annotations only |
-| Blue data accent | `#4A6FE8` or `#026BFF` | Charts and technical categories |
+| Blue data accent | `#4A6FE8` | Charts and technical categories |
 | Green data accent | `#4D9557` | Positive/status or comparison series |
 
 Keep orange-gold as the dominant accent. Use blue and green as secondary data colors, not as competing themes. Maintain accessible contrast against the dark background.
@@ -38,7 +40,7 @@ Keep orange-gold as the dominant accent. Use blue and green as secondary data co
 - Use bold or W7 for major titles and numeric emphasis; use W3/regular for explanatory text.
 - Preserve natural letter spacing. Avoid decorative display fonts that conflict with the event artwork.
 - Size text for projection. As a practical baseline, use approximately 30-44 pt for slide titles and 18-26 pt for body text, then adjust to content and room size.
-- The source cover demonstrates 88 pt main-title and 54 pt subtitle scale, but these are references rather than mandatory values.
+- On slide 2, 88 pt main title, 54 pt subtitle, and 28 pt speaker text are mandatory. On slides 4 onward, use approximately 30-44 pt for slide titles and 18-26 pt for body text as a projection baseline.
 - Apply all font colors according to [text-color-system.md](text-color-system.md). Treat those mappings as mandatory, not as palette suggestions.
 - Set the actual PowerPoint run font names to `腾讯体 W7` and `腾讯体 W3`; do not merely imitate their visual weight with another font.
 - Preserve the original template's embedded Tencent font resources when editing from that template. For a newly generated package, retain the exact `腾讯体 W7` and `腾讯体 W3` run names and require those fonts on the presentation machine.
@@ -50,6 +52,7 @@ Keep orange-gold as the dominant accent. Use blue and green as secondary data co
 - Keep clear space around the logo and avoid placing text, charts, or decorative shapes over it.
 - Do not extract and rebuild the logo from text, apply effects, change colors, or combine it with new marks.
 - On cover and closing pages, let the large illustrated event title remain the primary identity signal.
+- Apply every no-content box in [template-contract.md](template-contract.md), including the bottom-right summit mark on `background-05-content-alt.jpg`. Page numbers count as content and must stay outside these boxes.
 
 ## Composition
 
@@ -64,7 +67,7 @@ Keep orange-gold as the dominant accent. Use blue and green as secondary data co
 ## Page Roles
 
 - Slide 1, main KV: use `background-01-cover.jpg` unchanged as the entire slide. Add no talk title, subtitle, speaker identity, panel, shape, or overlay.
-- Slide 2, talk information: use `background-02-content.jpg` and preserve the source title-page typography and coordinates on a 13.333 x 7.5 inch canvas:
+- Slide 2, talk information: use `background-02-content.jpg` and preserve the source title-page typography and proportional coordinates. The values below are for a 13.333 x 7.5 inch canvas; multiply positions and dimensions by 1.5 on the original 20 x 11.25 inch canvas:
   - Main title: x 2.00, y 2.04, w 9.31, h 1.23; `腾讯体 W7`; 88 pt; `#FD9D50`.
   - Subtitle: x 3.05, y 3.22, w 7.21, h 0.76; `腾讯体 W7`; 54 pt; `#FD9D50`.
   - Speaker: x 5.19, y 5.27, w 2.87, h 0.39; `腾讯体 W3`; 28 pt; `#FFFFFF`.
@@ -87,3 +90,4 @@ These roles guide narrative rhythm only. They do not prescribe fixed component a
 - Confirm every text run follows the mandatory role-to-color mapping: orange-gold titles, white explanatory copy, and only the documented exceptions.
 - Confirm title runs use `腾讯体 W7` and body runs use `腾讯体 W3`. If embedded-font portability is required, confirm the deck was derived from the original template package.
 - Confirm slide 1 exactly matches the untouched main KV; slide 2 uses the exact 88/54/28 pt title-page typography and coordinates; slide 3 uses the original template background unchanged.
+- Run `scripts/validate_deck_brand.py <deck.pptx>` and require a zero exit status.

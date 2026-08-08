@@ -1,4 +1,4 @@
 interface:
   display_name: "2026 粤港澳峰会 PPT 模板"
-  short_description: "峰会PPT的品牌模板与验收层，需配合PPT生成Skill使用"
-  default_prompt: "Use $create-gba-architect-summit-slides as the 2026 summit template and brand-validation layer together with my preferred presentation-authoring skill."
+  short_description: "峰会品牌模板、PPT/PDF迁移与验收层，需配合生成Skill"
+  default_prompt: "Use $create-gba-architect-summit-slides with my preferred presentation-authoring skill to create a summit deck or migrate an existing PPT/PDF into the 2026 summit template."

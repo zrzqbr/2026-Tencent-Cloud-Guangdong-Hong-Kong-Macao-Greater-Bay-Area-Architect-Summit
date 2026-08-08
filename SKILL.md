@@ -1,20 +1,21 @@
 ---
 name: create-gba-architect-summit-slides
-description: "Apply the official 2026 Tencent Cloud Guangdong-Hong Kong-Macao Greater Bay Area Architect Summit PowerPoint template as a reusable brand-constraint and validation layer. This is not a standalone PPT generator: use it together with a presentation-authoring skill, plugin, or tool, or apply it to an existing .pptx. It supplies the fixed first three slides, approved logo-bearing backgrounds, Tencent W7/W3 typography, text colors, color blocks, and release validator while leaving content structures flexible after slide 3. Use for creating, adapting, reviewing, or validating summit speaker decks, agendas, technical talks, case studies, and data stories."
+description: "Apply the official 2026 Tencent Cloud Guangdong-Hong Kong-Macao Greater Bay Area Architect Summit PowerPoint template as a reusable brand-constraint, migration, and validation layer. This is not a standalone PPT generator: use it with a presentation-authoring skill, plugin, or tool. It can also migrate a legacy or non-branded .ppt, .pptx, or .pdf deck into the summit template while preserving content and adapting the fixed first three slides, approved logo-bearing backgrounds, Tencent W7/W3 typography, text colors, and color blocks. Keep content structures flexible after slide 3. Use for creating, migrating, adapting, reviewing, or validating summit speaker decks, agendas, technical talks, case studies, and data stories."
 ---
 
 # 2026 GBA Architect Summit PPT Template
 
 Apply the summit's official template assets and brand rules to a PowerPoint workflow. Treat this skill as a reusable template and compliance layer, not as the engine that independently researches, outlines, designs, and exports a presentation.
 
-> 定位说明：这是“2026 腾讯云粤港澳大湾区架构师峰会 PPT 模板 Skill”，不是独立的 PPT 生成 Skill。请把它与常用的 PPT 生成、内容研究、图表或图片 Skill 配合使用；其他 Skill 负责内容和制作，本 Skill 负责峰会模板适配与品牌验收。
+> 定位说明：这是“2026 腾讯云粤港澳大湾区架构师峰会 PPT 模板 Skill”，不是独立的 PPT 生成 Skill。请把它与常用的 PPT 生成、内容研究、图表、图片、PDF 读取或 PPT 编辑 Skill 配合使用；其他 Skill 负责内容提取和制作，本 Skill 负责新 PPT 的模板适配、旧 PPT/PDF 的品牌迁移与最终验收。
 
 ## Role And Responsibility
 
 Use this skill together with whichever presentation-authoring skill, plugin, or tool the user normally relies on.
 
 - Let the companion authoring skill own topic research, source collection, outline, narrative, slide planning, layout construction, charts, images, speaker notes, PPTX export, and rendering.
-- Let this template skill own the first-three-slide contract, canonical backgrounds, baked-in logos, Logo exclusion zones, Tencent font roles, text colors, approved color blocks, and final brand validation.
+- Let the companion reading or editing capability inspect every source slide or PDF page, extract content, preserve notes and data, and rebuild editable presentation elements where possible.
+- Let this template skill own source-to-destination migration rules, the first-three-slide contract, canonical backgrounds, baked-in logos, Logo exclusion zones, Tencent font roles, text colors, approved color blocks, and final brand validation.
 - Keep the companion skill's slide structures after slide 3 unless they violate a brand rule. Do not force the sample deck's cards, circles, columns, charts, or page composition onto the companion skill.
 - When no authoring skill is named, select an available PowerPoint creation or editing capability, then apply this template skill alongside it. Do not represent this skill alone as a complete PPT generation system.
 
@@ -30,15 +31,18 @@ Example request:
 
 > Use my usual PPT generation skill to create a technical talk, and use `$create-gba-architect-summit-slides` as the 2026 summit template and brand-validation layer.
 
-### Adapt An Existing Deck
+### Migrate An Existing PPT Or PDF
 
-1. Use a PowerPoint editing skill to preserve the existing content and information structure.
-2. Use this template skill to replace the visual identity with the approved summit backgrounds, first three pages, fonts, colors, and Logo clear spaces.
-3. Validate the adapted `.pptx` with the bundled script.
+1. Read [references/migration-workflow.md](references/migration-workflow.md) and inventory every source slide or PDF page before editing.
+2. Use a PowerPoint or PDF capability to extract the source content, narrative, data, notes, images, and diagrams.
+3. Use this template skill to map the source title into slide 2, keep slides 1 and 3 fixed, and migrate the remaining content from slide 4 onward.
+4. Remove the old template skin and adapt every destination slide to the approved backgrounds, baked-in Logo treatment, Tencent fonts, text colors, color blocks, and Logo exclusion zones.
+5. Preserve the source's information structure without copying its old visual theme. Rebuild editable elements when possible and record any PDF-derived element that must remain rasterized.
+6. Compare source and destination page by page, then validate the migrated `.pptx` with the bundled script.
 
 Example request:
 
-> Adapt this existing PPT to the 2026 Tencent Cloud Greater Bay Area Architect Summit with `$create-gba-architect-summit-slides`, while keeping its content structure flexible.
+> Migrate this existing PPT or PDF to the 2026 Tencent Cloud Greater Bay Area Architect Summit with `$create-gba-architect-summit-slides`; preserve all content and data while adapting backgrounds, logos, fonts, and brand colors.
 
 ### Validate Only
 
@@ -53,12 +57,13 @@ Example request:
 1. Identify the companion skill or tool responsible for PPT creation or editing.
 2. Read [references/template-contract.md](references/template-contract.md) first. Treat it as authoritative when another reference appears ambiguous.
 3. Read [references/brand-guidelines.md](references/brand-guidelines.md), [references/text-color-system.md](references/text-color-system.md), and [references/color-block-system.md](references/color-block-system.md) before the companion capability designs or edits slides.
-4. Let the companion capability inspect the user's content, audience, duration, and output requirements and develop the narrative.
-5. Lock slides 1-3 before authoring the remaining content. Use the canonical assets in `assets/fixed-pages/` and do not substitute lookalike images.
-6. Let the companion capability choose the most suitable slide architecture from slide 4 onward. Treat the source deck's circles, cards, charts, and image arrangements as examples only.
-7. Apply the branded backgrounds in `assets/backgrounds/` or start from `assets/0815-architect-summit-template.pptx` when native PowerPoint masters are useful.
-8. Preserve the summit logo, event identity, palette, exact Tencent font roles, and atmospheric background system without taking ownership of the deck's content structure.
-9. Let the companion capability render the deck for visual inspection, including every Logo exclusion zone, then run `scripts/validate_deck_brand.py <deck.pptx>`. Do not deliver until both visual inspection and automated validation pass.
+4. For a source PPT, PPTX, or PDF, read [references/migration-workflow.md](references/migration-workflow.md), create a complete source-to-destination map, and account for every source page before authoring.
+5. Let the companion capability inspect the user's content, audience, duration, and output requirements and develop or preserve the narrative.
+6. Lock slides 1-3 before authoring the remaining content. Use the canonical assets in `assets/fixed-pages/` and do not substitute lookalike images.
+7. Let the companion capability choose the most suitable slide architecture from slide 4 onward. Treat the source deck's circles, cards, charts, and image arrangements as examples only.
+8. Apply the branded backgrounds in `assets/backgrounds/` or start from `assets/0815-architect-summit-template.pptx` when native PowerPoint masters are useful.
+9. Preserve the summit logo, event identity, palette, exact Tencent font roles, and atmospheric background system without taking ownership of the deck's content structure.
+10. Let the companion capability render the deck for visual inspection, including every Logo exclusion zone, then run `scripts/validate_deck_brand.py <deck.pptx>`. For migrations, also compare every source page against its destination mapping. Do not deliver until visual inspection, migration completeness, and automated validation pass.
 
 ## Design Freedom
 

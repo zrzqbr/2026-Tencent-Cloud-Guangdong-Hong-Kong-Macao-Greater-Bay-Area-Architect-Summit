@@ -1,23 +1,64 @@
 ---
 name: create-gba-architect-summit-slides
-description: Create, redesign, validate, or extend PowerPoint presentations for the Guangdong-Hong Kong-Macao Greater Bay Area Architect Summit while strictly preserving the supplied main KV, fixed first-three-slide contract, logo-bearing backgrounds, Tencent W7/W3 typography, text colors, and approved color blocks. Use for branded summit decks, speaker presentations, agendas, technical talks, case studies, data stories, or edits to .pptx files that must retain the exact visual identity of the 0815 architect summit template while allowing flexible content layouts after slide 3.
+description: "Apply the official 2026 Tencent Cloud Guangdong-Hong Kong-Macao Greater Bay Area Architect Summit PowerPoint template as a reusable brand-constraint and validation layer. This is not a standalone PPT generator: use it together with a presentation-authoring skill, plugin, or tool, or apply it to an existing .pptx. It supplies the fixed first three slides, approved logo-bearing backgrounds, Tencent W7/W3 typography, text colors, color blocks, and release validator while leaving content structures flexible after slide 3. Use for creating, adapting, reviewing, or validating summit speaker decks, agendas, technical talks, case studies, and data stories."
 ---
 
-# Create GBA Architect Summit Slides
+# 2026 GBA Architect Summit PPT Template
 
-Create polished 16:9 summit presentations that preserve the event identity without copying the sample deck's page structures.
+Apply the summit's official template assets and brand rules to a PowerPoint workflow. Treat this skill as a reusable template and compliance layer, not as the engine that independently researches, outlines, designs, and exports a presentation.
+
+> 定位说明：这是“2026 腾讯云粤港澳大湾区架构师峰会 PPT 模板 Skill”，不是独立的 PPT 生成 Skill。请把它与常用的 PPT 生成、内容研究、图表或图片 Skill 配合使用；其他 Skill 负责内容和制作，本 Skill 负责峰会模板适配与品牌验收。
+
+## Role And Responsibility
+
+Use this skill together with whichever presentation-authoring skill, plugin, or tool the user normally relies on.
+
+- Let the companion authoring skill own topic research, source collection, outline, narrative, slide planning, layout construction, charts, images, speaker notes, PPTX export, and rendering.
+- Let this template skill own the first-three-slide contract, canonical backgrounds, baked-in logos, Logo exclusion zones, Tencent font roles, text colors, approved color blocks, and final brand validation.
+- Keep the companion skill's slide structures after slide 3 unless they violate a brand rule. Do not force the sample deck's cards, circles, columns, charts, or page composition onto the companion skill.
+- When no authoring skill is named, select an available PowerPoint creation or editing capability, then apply this template skill alongside it. Do not represent this skill alone as a complete PPT generation system.
+
+## Combination Patterns
+
+### Generate A New Deck
+
+1. Use the user's preferred content, research, outline, and presentation-authoring skills to develop the talk and build the PPTX.
+2. Apply this template skill throughout authoring so slides 1-3 and all brand rules are correct from the start.
+3. Render with the authoring capability and run this skill's validator before delivery.
+
+Example request:
+
+> Use my usual PPT generation skill to create a technical talk, and use `$create-gba-architect-summit-slides` as the 2026 summit template and brand-validation layer.
+
+### Adapt An Existing Deck
+
+1. Use a PowerPoint editing skill to preserve the existing content and information structure.
+2. Use this template skill to replace the visual identity with the approved summit backgrounds, first three pages, fonts, colors, and Logo clear spaces.
+3. Validate the adapted `.pptx` with the bundled script.
+
+Example request:
+
+> Adapt this existing PPT to the 2026 Tencent Cloud Greater Bay Area Architect Summit with `$create-gba-architect-summit-slides`, while keeping its content structure flexible.
+
+### Validate Only
+
+Use this skill without rewriting the narrative when the user only needs a compliance review. Inspect the rendered slides and run `scripts/validate_deck_brand.py <deck.pptx>`.
+
+Example request:
+
+> Use `$create-gba-architect-summit-slides` to check whether this deck complies with the summit template; report violations without changing the content.
 
 ## Workflow
 
-1. Read [references/template-contract.md](references/template-contract.md) first. Treat it as authoritative when another reference appears ambiguous.
-2. Read [references/brand-guidelines.md](references/brand-guidelines.md), [references/text-color-system.md](references/text-color-system.md), and [references/color-block-system.md](references/color-block-system.md) before designing or editing slides.
-3. Inspect the user's content, audience, talk duration, and output requirements. Infer a clear narrative when these are not specified.
-4. Lock slides 1-3 before designing the remaining content. Use the canonical assets in `assets/fixed-pages/` and do not substitute lookalike images.
-5. Choose the most suitable slide architecture for slides 4 onward. Treat the source deck's circles, cards, charts, and image arrangements as examples only.
-6. Use the branded backgrounds in `assets/backgrounds/` or start from `assets/0815-architect-summit-template.pptx` when native PowerPoint masters are useful.
-7. Preserve the summit logo, event identity, palette, exact Tencent Sans font roles, and atmospheric background system.
-8. Build each content slide around its communication purpose: statement, comparison, process, architecture, timeline, evidence, demo, or conclusion.
-9. Render the deck for visual inspection, including every Logo exclusion zone, then run `scripts/validate_deck_brand.py <deck.pptx>`. Do not deliver until both visual inspection and automated validation pass.
+1. Identify the companion skill or tool responsible for PPT creation or editing.
+2. Read [references/template-contract.md](references/template-contract.md) first. Treat it as authoritative when another reference appears ambiguous.
+3. Read [references/brand-guidelines.md](references/brand-guidelines.md), [references/text-color-system.md](references/text-color-system.md), and [references/color-block-system.md](references/color-block-system.md) before the companion capability designs or edits slides.
+4. Let the companion capability inspect the user's content, audience, duration, and output requirements and develop the narrative.
+5. Lock slides 1-3 before authoring the remaining content. Use the canonical assets in `assets/fixed-pages/` and do not substitute lookalike images.
+6. Let the companion capability choose the most suitable slide architecture from slide 4 onward. Treat the source deck's circles, cards, charts, and image arrangements as examples only.
+7. Apply the branded backgrounds in `assets/backgrounds/` or start from `assets/0815-architect-summit-template.pptx` when native PowerPoint masters are useful.
+8. Preserve the summit logo, event identity, palette, exact Tencent font roles, and atmospheric background system without taking ownership of the deck's content structure.
+9. Let the companion capability render the deck for visual inspection, including every Logo exclusion zone, then run `scripts/validate_deck_brand.py <deck.pptx>`. Do not deliver until both visual inspection and automated validation pass.
 
 ## Design Freedom
 

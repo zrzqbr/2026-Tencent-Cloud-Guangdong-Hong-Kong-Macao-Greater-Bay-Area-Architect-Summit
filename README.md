@@ -9,7 +9,7 @@
 它更像一层“模板适配 + 品牌规范 + 验收门禁”：
 
 - 你的常用 PPT 生成 Skill、演示文稿工具或编辑工具负责内容和 PPT 制作。
-- 本 Skill 负责将输出适配为峰会模板，并检查品牌规范是否合格。
+- 本 Skill 负责将输出适配为峰会模板，并检查品牌规范、文字排版安全和固定页面是否合格。
 - 第 4 页以后保留内容结构自由，不强制使用样例中的卡片、圆形编号、三栏或图表结构。
 
 ## 可以配合哪些 Skill
@@ -37,19 +37,21 @@
 5. 从第 4 页开始迁移原 PPT/PDF 的正文内容，保留原有信息结构，但不复制旧模板的视觉皮肤。
 6. 替换旧背景、旧母版装饰、旧页码、旧模板 Logo 和旧主题色。
 7. 适配峰会背景、Logo 禁入区、腾讯体 W7/W3、标题橙金色、正文白色和批准的色块系统。
-8. 对每个源页面和目标页面进行对照检查，避免文字、数字、图表或来源丢失。
+8. 将原内容的结论、Q&A 或联系方式放在倒数第二页，最后追加模板原版“谢谢观看 / THANKS”页。
+9. 对每个源页面和目标页面进行对照检查，避免文字、数字、图表或来源丢失。
 
 PDF 是扁平化文件。能恢复为可编辑文字、表格、图形的内容会尽量重建；无法恢复编辑性的图表或复杂图像，会保留清晰的高分辨率图像，并记录其不可编辑限制。不会用整页 PDF 截图代替完整迁移。
 
 详细规则见 [`references/migration-workflow.md`](references/migration-workflow.md)。
 
-## 固定前三页
+## 固定页面
 
 | 页面 | 规则 |
 | --- | --- |
 | 第 1 页 | 原始主 KV 完全不变，只保留整页背景 |
 | 第 2 页 | 放置主题名称、副标题、讲师字段，使用固定位置、字号、字体和颜色 |
 | 第 3 页 | 使用原模板背景，不添加标题、照片、Logo、线条或占位内容 |
+| 最后一页 | 使用原模板“谢谢观看 / THANKS”整页资产，不重排文字，不添加任何内容 |
 
 第 2 页的核心文字规范：
 
@@ -67,6 +69,21 @@ PDF 是扁平化文件。能恢复为可编辑文字、表格、图形的内容�
 - Logo 使用背景中已经嵌入的官方图形，不重新绘制、复制、改色或遮挡。
 - 每页使用批准的峰会背景，并为 Logo 和右下角峰会标识保留禁入区。
 
+## 避免字体重叠
+
+腾讯体、系统回退字体、PowerPoint、WPS 和 LibreOffice 的文字度量并不完全一致。仅在 XML 中写入正确字体，或让文本框自动缩小，不代表最终页面没有重叠。
+
+本 Skill 要求配合使用的 PPT 生成 Skill：
+
+- 在第 4 页以后为独立文字框保留至少 0.12 英寸的纵向间距。
+- 不允许两个独立文字框在横向和纵向同时实质交叉。
+- 不把自动缩小字体作为主要排版方法；优先扩大文本框、缩短文案或拆页。
+- 每次修改后重新渲染，逐页检查文字、图表标签、页脚和 Logo 安全区。
+- 先运行 PPT 生成 Skill 自带的溢出检查，再运行本 Skill 的品牌校验。
+- 最后一页直接使用固定整页资产，避免“谢谢观看”和“THANKS”在不同环境中发生位移或重叠。
+
+完整规则见 [`references/typography-safety.md`](references/typography-safety.md)。
+
 完整规范见：
 
 - [`references/template-contract.md`](references/template-contract.md)
@@ -78,7 +95,7 @@ PDF 是扁平化文件。能恢复为可编辑文字、表格、图形的内容�
 
 ### 1. 生成新 PPT
 
-让常用 PPT Skill 负责内容和版式，本 Skill 负责模板适配和验收。
+让常用 PPT Skill 负责内容、版式、渲染和溢出检测，本 Skill 负责模板适配、字体间距规则和最终验收。
 
 ### 2. 迁移旧 PPT / PDF
 
@@ -92,15 +109,24 @@ PDF 是扁平化文件。能恢复为可编辑文字、表格、图形的内容�
 python3 scripts/validate_deck_brand.py /absolute/path/to/deck.pptx
 ```
 
-校验失败即视为不能交付，需修复后重新检查。
+校验失败即视为不能交付，需修复后重新渲染并检查。
+
+自动校验不能替代逐页渲染检查，两项都通过才可交付。
+
+如果 LibreOffice 把中文渲染成方框，可使用 Skill 自带的预览回退脚本。它只影响预览，不会修改 PPTX 中的腾讯体字段：
+
+```bash
+python3 scripts/render_deck_preview.py /absolute/path/deck.pptx \
+  --soffice /absolute/path/to/ppt-skill/scripts/office/soffice.py
+```
 
 ## 目录说明
 
 - `SKILL.md`：Codex 实际使用的 Skill 指令
 - `agents/openai.yaml`：Skill 在 Codex 中的显示信息
-- `assets/fixed-pages/`：固定前三页背景资产
+- `assets/fixed-pages/`：固定前三页和最终感谢页资产
 - `assets/backgrounds/`：批准的峰会背景
 - `assets/color-blocks/`：批准的色块资产
-- `references/`：模板契约、品牌规范、文字规范、色块规范和迁移流程
-- `scripts/validate_deck_brand.py`：PPT 品牌验收脚本
-
+- `references/`：模板契约、品牌规范、文字与排版安全、色块规范和迁移流程
+- `scripts/validate_deck_brand.py`：PPT 品牌与高风险文字框交叉验收脚本
+- `scripts/render_deck_preview.py`：腾讯体不可渲染时的预览专用字体回退工具

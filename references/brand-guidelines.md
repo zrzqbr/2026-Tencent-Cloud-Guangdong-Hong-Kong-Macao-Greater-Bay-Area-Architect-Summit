@@ -1,6 +1,6 @@
 # Brand Guidelines
 
-For the fixed first three slides, always follow [template-contract.md](template-contract.md). It overrides any general composition guidance below.
+For the fixed first three slides and the fixed final thank-you slide, always follow [template-contract.md](template-contract.md). It overrides any general composition guidance below.
 
 ## Visual Principle
 
@@ -44,6 +44,7 @@ Keep orange-gold as the dominant accent. Use blue and green as secondary data co
 - Apply all font colors according to [text-color-system.md](text-color-system.md). Treat those mappings as mandatory, not as palette suggestions.
 - Set the actual PowerPoint run font names to `腾讯体 W7` and `腾讯体 W3`; do not merely imitate their visual weight with another font.
 - Preserve the original template's embedded Tencent font resources when editing from that template. For a newly generated package, retain the exact `腾讯体 W7` and `腾讯体 W3` run names and require those fonts on the presentation machine.
+- Apply [typography-safety.md](typography-safety.md) before placing text. Keep safe gaps between independent text boxes and never treat automatic shrinking as proof that a layout fits.
 
 ## Logo And Identity
 
@@ -75,7 +76,8 @@ Keep orange-gold as the dominant accent. Use blue and green as secondary data co
 - Slide 3, original template page: use `background-03-section.jpg` unchanged and add no visible object. Populate it only when the user explicitly supplies content intended for this page.
 - Section divider: one short chapter statement with a strong numeral or thematic phrase.
 - Content: choose any structure suitable for the idea, including diagrams, comparisons, evidence, images, code, or narrative statements.
-- Closing: use the closing illustration and a concise final message, contact detail, or Q&A prompt.
+- Penultimate slide: place the talk's own conclusion, contact detail, or Q&A prompt on an approved content or section background.
+- Final slide: use `assets/fixed-pages/slide-final-thanks.png` unchanged as the only visible object.
 
 These roles guide narrative rhythm only. They do not prescribe fixed component arrangements.
 
@@ -87,7 +89,8 @@ These roles guide narrative rhythm only. They do not prescribe fixed component a
 - Confirm the presentation is not merely a sequence of copied sample layouts.
 - Confirm charts, diagrams, and images use the brand palette without sacrificing clarity.
 - Confirm there are no overlaps, clipped text, broken fonts, or low-resolution assets in the rendered output.
+- Confirm the authoring skill's overflow test passed and every changed slide was rerendered after the last typography fix.
 - Confirm every text run follows the mandatory role-to-color mapping: orange-gold titles, white explanatory copy, and only the documented exceptions.
 - Confirm title runs use `腾讯体 W7` and body runs use `腾讯体 W3`. If embedded-font portability is required, confirm the deck was derived from the original template package.
-- Confirm slide 1 exactly matches the untouched main KV; slide 2 uses the exact 88/54/28 pt title-page typography and coordinates; slide 3 uses the original template background unchanged.
+- Confirm slide 1 exactly matches the untouched main KV; slide 2 uses the exact 88/54/28 pt title-page typography and coordinates; slide 3 uses the original template background unchanged; and the final slide is the untouched canonical thank-you page.
 - Run `scripts/validate_deck_brand.py <deck.pptx>` and require a zero exit status.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate summit PPTX backgrounds, fixed slides, fonts, and text colors."""
+"""Validate summit PPTX fixed assets, fonts, colors, and text-box collision risks."""
 
 import argparse
 import hashlib
@@ -26,6 +26,7 @@ ORIGINAL_CX = 18288000
 ORIGINAL_CY = 10287000
 ALLOWED_CANVASES = {(STANDARD_CX, STANDARD_CY), (ORIGINAL_CX, ORIGINAL_CY)}
 ALLOWED_FONTS = {"腾讯体 W7", "腾讯体 W3"}
+TEXT_COLLISION_CLEARANCE = round(0.04 * 914400)
 ALLOWED_TEXT_COLORS = {
     "FD9D50", "FFFFFF", "FFE7B9", "A7A7A7", "8B8C8C",
     "4A6FE8", "4D9557", "00365F",
@@ -42,6 +43,7 @@ FIXED_PAGE_HASHES = {
     "slide-01-main-kv.jpg": CANONICAL_BACKGROUND_HASHES["background-01-cover.jpg"],
     "slide-02-title-background.jpg": CANONICAL_BACKGROUND_HASHES["background-02-content.jpg"],
     "slide-03-original-background.jpg": CANONICAL_BACKGROUND_HASHES["background-03-section.jpg"],
+    "slide-final-thanks.png": "f45e79d23692ef6af37ab48e0a0f06c8d7bde3866ff1980dadd7a68def9a29d6",
 }
 
 
@@ -140,6 +142,43 @@ def shape_box(shape):
     return tuple(int(v) for v in (off.get("x"), off.get("y"), ext.get("cx"), ext.get("cy")))
 
 
+def text_shapes(root):
+    """Return ungrouped non-empty text shapes with slide-coordinate boxes."""
+    parents = {child: parent for parent in root.iter() for child in parent}
+    entries = []
+    for shape in root.findall(".//p:sp", NS):
+        ancestor = parents.get(shape)
+        grouped = False
+        while ancestor is not None:
+            if ancestor.tag == f"{{{P}}}grpSp":
+                grouped = True
+                break
+            ancestor = parents.get(ancestor)
+        if grouped:
+            continue
+        value = "".join(node.text or "" for node in shape.findall(".//a:t", NS)).strip()
+        box = shape_box(shape)
+        if value and box is not None:
+            entries.append((value, box))
+    return entries
+
+
+def check_text_collisions(errors, slide_number, root, scale):
+    clearance = round(TEXT_COLLISION_CLEARANCE * scale)
+    entries = text_shapes(root)
+    for index, (first_text, first_box) in enumerate(entries):
+        ax, ay, aw, ah = first_box
+        for second_text, second_box in entries[index + 1:]:
+            bx, by, bw, bh = second_box
+            overlap_w = min(ax + aw, bx + bw) - max(ax, bx)
+            overlap_h = min(ay + ah, by + bh) - max(ay, by)
+            if overlap_w > clearance and overlap_h > clearance:
+                errors.append(
+                    f"Slide {slide_number} text boxes {first_text[:24]!r} and {second_text[:24]!r} "
+                    "substantially intersect; reflow them and rerender the slide"
+                )
+
+
 def check_box(errors, label, actual, expected, tolerance=2000):
     if not box_matches(actual, expected, tolerance):
         errors.append(f"Slide 2 {label} box must be {expected}; found {actual}")
@@ -173,8 +212,10 @@ def check_asset_integrity(errors):
 def validate(deck: Path) -> list[str]:
     errors = []
     check_asset_integrity(errors)
-    approved_hashes = set(CANONICAL_BACKGROUND_HASHES.values())
-    fixed_hashes = [
+    approved_hashes = set(CANONICAL_BACKGROUND_HASHES.values()) | {
+        FIXED_PAGE_HASHES["slide-final-thanks.png"]
+    }
+    opening_fixed_hashes = [
         FIXED_PAGE_HASHES["slide-01-main-kv.jpg"],
         FIXED_PAGE_HASHES["slide-02-title-background.jpg"],
         FIXED_PAGE_HASHES["slide-03-original-background.jpg"],
@@ -186,12 +227,13 @@ def validate(deck: Path) -> list[str]:
         canvas = (int(size.get("cx", 0)), int(size.get("cy", 0))) if size is not None else (0, 0)
         if canvas not in ALLOWED_CANVASES:
             errors.append("Deck must use the standard 13.333 x 7.5 or original 20 x 11.25 inch 16:9 canvas")
-        if len(paths) < 3:
-            return errors + ["Deck must contain at least three slides"]
+        if len(paths) < 4:
+            return errors + ["Deck must contain the fixed first three slides and the fixed final thank-you slide"]
 
         roots = [xml(archive, path) for path in paths]
         all_images = [slide_images(archive, path, root) for path, root in zip(paths, roots)]
         full_slide_box = (0, 0, *canvas)
+        final_hash = FIXED_PAGE_HASHES["slide-final-thanks.png"]
         for index, images in enumerate(all_images, 1):
             approved = [item for item in images if sha256(item[2]) in approved_hashes]
             if not any(box_matches(box, full_slide_box) and not cropped for _, _, _, box, cropped in approved):
@@ -199,6 +241,8 @@ def validate(deck: Path) -> list[str]:
             drawables = drawable_elements(roots[index - 1])
             if not drawables or drawables[0].tag != f"{{{P}}}pic" or not approved or images[0] not in approved:
                 errors.append(f"Slide {index} approved background must be the bottom-most visible object")
+            if index != len(paths) and any(sha256(data) == final_hash for _, _, data, _, _ in images):
+                errors.append(f"Slide {index} uses the fixed thank-you asset before the final slide")
 
         for index in (0, 2):
             root = roots[index]
@@ -206,12 +250,22 @@ def validate(deck: Path) -> list[str]:
             visible_count += len(root.findall(".//p:graphicFrame", NS)) + len(root.findall(".//p:cxnSp", NS))
             if visible_count != 1 or len(all_images[index]) != 1:
                 errors.append(f"Slide {index + 1} must contain only its single canonical background image")
-            elif (sha256(all_images[index][0][2]) != fixed_hashes[index]
+            elif (sha256(all_images[index][0][2]) != opening_fixed_hashes[index]
                   or not box_matches(all_images[index][0][3], full_slide_box)
                   or all_images[index][0][4]):
                 errors.append(f"Slide {index + 1} background does not match the canonical asset")
 
-        if not any(sha256(data) == fixed_hashes[1] and box_matches(box, full_slide_box) and not cropped
+        final_root = roots[-1]
+        final_visible_count = len(final_root.findall(".//p:pic", NS)) + len(final_root.findall(".//p:sp", NS))
+        final_visible_count += len(final_root.findall(".//p:graphicFrame", NS)) + len(final_root.findall(".//p:cxnSp", NS))
+        if final_visible_count != 1 or len(all_images[-1]) != 1:
+            errors.append("Final slide must contain only the single canonical thank-you image")
+        elif (sha256(all_images[-1][0][2]) != final_hash
+              or not box_matches(all_images[-1][0][3], full_slide_box)
+              or all_images[-1][0][4]):
+            errors.append("Final slide does not match the canonical thank-you asset")
+
+        if not any(sha256(data) == opening_fixed_hashes[1] and box_matches(box, full_slide_box) and not cropped
                    for _, _, data, box, cropped in all_images[1]):
             errors.append("Slide 2 background does not match the canonical title background")
         slide2_shapes = [shape for shape in roots[1].findall(".//p:sp", NS) if shape.findall(".//a:t", NS)]
@@ -254,6 +308,8 @@ def validate(deck: Path) -> list[str]:
                 if color not in ALLOWED_TEXT_COLORS:
                     found = f"#{color}" if color else "no direct sRGB color"
                     errors.append(f"Slide {slide_index} text {value[:24]!r} uses disallowed color {found}")
+        for slide_index, root in enumerate(roots[3:-1], 4):
+            check_text_collisions(errors, slide_index, root, scale)
     return errors
 
 
@@ -267,7 +323,10 @@ def main() -> None:
         for error in errors:
             print(f"- {error}")
         sys.exit(1)
-    print("Brand validation passed: canonical assets, fixed slides, backgrounds, fonts, and text colors are valid.")
+    print(
+        "Brand validation passed: canonical assets, fixed slides, final thank-you page, backgrounds, "
+        "fonts, text colors, and text-box collision checks are valid."
+    )
 
 
 if __name__ == "__main__":

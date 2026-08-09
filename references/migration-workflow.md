@@ -39,7 +39,8 @@ Do not use `omit-with-user-approval` without explicit user approval. Record ever
 2. Map the source deck's talk title, subtitle, and supplied speaker name into the fixed slide-2 fields. Do not duplicate the old cover as a later content slide.
 3. Insert the canonical slide 3 unchanged and empty.
 4. Migrate source body content from destination slide 4 onward. Preserve an existing speaker biography or headshot page after slide 3 when the source contains one; do not invent it.
-5. Map a source closing message to the approved closing background when relevant.
+5. Map a source closing message, conclusion, Q&A, or contact page to the penultimate destination slide when relevant.
+6. Append `assets/fixed-pages/slide-final-thanks.png` unchanged as the final slide. Do not rebuild or place source content on top of it.
 
 ## Brand Adaptation
 
@@ -50,6 +51,7 @@ Do not use `omit-with-user-approval` without explicit user approval. Record ever
 - Apply the mandatory role-to-color mapping: orange-gold titles, white explanatory copy, and only documented exceptions.
 - Replace source-theme fills with approved color blocks. Keep charts semantically readable while translating series colors into the summit palette.
 - Reflow, split, or redesign content when necessary for legibility. Do not preserve a source layout when it causes overlap, tiny text, or Logo obstruction.
+- Apply [typography-safety.md](typography-safety.md). Font substitution changes text metrics, so every migrated slide must be rerendered and checked for collisions after Tencent fonts are assigned.
 
 ## Content Fidelity
 
@@ -63,6 +65,8 @@ Do not use `omit-with-user-approval` without explicit user approval. Record ever
 
 1. Confirm every source page appears in `migration-map.json` and every mapped destination slide exists.
 2. Compare each source page with its destination slide at full size for content loss, OCR errors, altered numbers, missing notes, and incorrect crops.
-3. Inspect the entire destination deck for narrative continuity, text fit, editable elements, background consistency, and Logo clear space.
-4. Run `scripts/validate_deck_brand.py <destination.pptx>` and require a zero exit status.
-5. Deliver only after content fidelity, template compliance, and automated brand validation all pass.
+3. Run the companion authoring skill's overflow test and inspect the entire destination deck for narrative continuity, text fit, editable elements, background consistency, and Logo clear space.
+4. Confirm the talk's own conclusion is penultimate and the canonical thank-you page is final.
+5. Rerender every changed slide after fixing a typography issue.
+6. Run `scripts/validate_deck_brand.py <destination.pptx>` and require a zero exit status.
+7. Deliver only after content fidelity, rendered typography safety, template compliance, and automated brand validation all pass.

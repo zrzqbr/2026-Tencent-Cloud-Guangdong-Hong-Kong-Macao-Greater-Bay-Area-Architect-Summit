@@ -46,6 +46,19 @@ Canonical SHA-256:
 
 `a05520185110930bcfd659528f6d5241d026ee04598932db9417e4fcc00145a3`
 
+## Fixed Final Slide: Thank You
+
+- Use `assets/fixed-pages/slide-final-thanks.png` as the only visible object on the final slide.
+- Place it at x 0, y 0 and scale it to the full canvas without cropping.
+- Add no custom text, editable recreation, page number, panel, shape, overlay, animation object, or transparent mask.
+- Keep the template wording and composition unchanged: `浪会一直来, 而我们学会了看海!`, `谢谢观看`, and `THANKS` are already baked into the canonical asset.
+- Put the talk's own conclusion, Q&A, contact information, or closing statement on the penultimate slide.
+- Do not rebuild the final text with separate text boxes. The fixed image avoids font-metric changes and text overlap across PowerPoint, WPS, LibreOffice, and machines without Tencent fonts.
+
+Canonical SHA-256:
+
+`f45e79d23692ef6af37ab48e0a0f06c8d7bde3866ff1980dadd7a68def9a29d6`
+
 ## Logo And Background Contract
 
 - Treat logos baked into supplied backgrounds as the authoritative logo artwork.
@@ -78,6 +91,7 @@ The boxes protect baked identity artwork only; they do not prescribe a content g
 - Set the actual PowerPoint run font names. Do not only simulate the weight with another typeface.
 - Use a fallback only for local rendering when Tencent fonts are unavailable; do not write the fallback into the delivered PPTX.
 - Preserve natural letter spacing and use no text gradient, glow, outline, bevel, or decorative shadow.
+- Follow [typography-safety.md](typography-safety.md). After slide 3, independent text boxes must not substantially overlap; reflow or split content instead of relying on automatic shrinking.
 
 ## Text Color Contract
 
@@ -101,8 +115,10 @@ The boxes protect baked identity artwork only; they do not prescribe a content g
 
 ## Release Gate
 
-1. Render every slide and visually inspect text fit, contrast, Logo clear space, and unintended overlaps.
-2. Confirm every text run explicitly stores `腾讯体 W7` or `腾讯体 W3` for Latin, East Asian, and complex-script font fields and uses a direct approved sRGB color.
-3. Run `scripts/validate_deck_brand.py <deck.pptx>`.
-4. Fix every reported error and rerun both checks.
-5. Deliver only after the automated validator exits successfully.
+1. Run the companion authoring skill's overflow test.
+2. Render every slide and visually inspect text fit, line spacing, contrast, Logo clear space, and unintended overlaps.
+3. Confirm every text run explicitly stores `腾讯体 W7` or `腾讯体 W3` for Latin, East Asian, and complex-script font fields and uses a direct approved sRGB color.
+4. Confirm the final slide is the canonical single-image thank-you page and the talk conclusion is penultimate.
+5. Run `scripts/validate_deck_brand.py <deck.pptx>`.
+6. Fix every reported error, rerender affected slides, and rerun both checks.
+7. Deliver only after the rendered pass and automated validator both succeed.

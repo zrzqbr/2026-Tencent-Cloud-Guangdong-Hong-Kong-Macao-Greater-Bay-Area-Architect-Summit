@@ -1,132 +1,152 @@
 # 2026 腾讯云粤港澳大湾区架构师峰会 PPT 模板 Skill
 
-这是一个用于 **2026 腾讯云粤港澳大湾区架构师峰会** 的 PowerPoint 模板与品牌适配 Skill。
+这是峰会专用的 **PPT 模板、品牌限定、旧稿迁移与验收 Skill**。
 
-## 先说清楚：它不是 PPT 生成器
+它不是独立 PPT 生成器。请与自己常用的 PPT 生成/编辑 Skill、内容研究工具、图表工具、图片工具或 PDF 工具一起使用：其他工具负责选题、大纲、叙事、页面结构和 PPT 制作；本 Skill 负责把结果适配到 2026 峰会模板，并检查品牌、字体、颜色、Logo、迁移完整性和文字重叠。
 
-这个 Skill 不负责独立完成选题、调研、大纲、叙事、版式设计和 PPT 文件生成。
+第 4 页以后不限定结构，不要求套用模板样例里的卡片、圆形编号、三栏、图表或图片布局。
 
-它更像一层“模板适配 + 品牌规范 + 验收门禁”：
+## 新版模板映射
 
-- 你的常用 PPT 生成 Skill、演示文稿工具或编辑工具负责内容和 PPT 制作。
-- 本 Skill 负责将输出适配为峰会模板，并检查品牌规范、文字排版安全和固定页面是否合格。
-- 第 4 页以后保留内容结构自由，不强制使用样例中的卡片、圆形编号、三栏或图表结构。
+官方源模板有 13 页，但最终演讲稿不能直接原样输出：
 
-## 可以配合哪些 Skill
+| 源模板页 | 作用 | 最终稿规则 |
+| --- | --- | --- |
+| 第 1 页 | 主 KV | 最终第 1 页，完全不变 |
+| 第 2 页 | 56 个 SVG 图标素材 | 只作素材库，不进入最终稿 |
+| 第 3 页 | 演讲标题页 | 最终第 2 页 |
+| 第 4 页 | 讲师介绍页 | 最终第 3 页；有真实资料就填，没有就留空背景 |
+| 第 5-12 页 | 版式样例 | 仅供参考，不限定结构 |
+| 第 13 页 | Thank-you 页 | 最后一页，完全不变 |
 
-可以和以下能力一起使用：
+演讲者自己的总结、Q&A 或联系方式放倒数第二页，最终感谢页始终是最后一页。
 
-- PPT / PowerPoint 生成或编辑 Skill
-- 内容研究、行业分析和大纲 Skill
-- 图表、数据可视化 Skill
-- 图片生成或图片处理 Skill
-- PDF 读取、OCR 和文档转换工具
+## 典型用法
 
-典型调用方式：
+生成新 PPT：
 
-> 使用我常用的 PPT 生成 Skill 做一套技术分享，同时使用 `$create-gba-architect-summit-slides` 作为 2026 峰会模板和品牌验收层。
+> 使用我常用的 PPT 生成 Skill 完成内容和页面制作，同时使用 `$create-gba-architect-summit-slides` 作为 2026 腾讯云粤港澳大湾区架构师峰会的模板、品牌和验收层。
 
-## 旧 PPT / PDF 迁移
+迁移旧 PPT/PDF：
 
-如果原来已有一个不是峰会模板制作的 `.ppt`、`.pptx` 或 `.pdf`，可以使用本 Skill 进行迁移：
+> 使用 `$create-gba-architect-summit-slides` 把这个旧 PPT/PDF 迁移到峰会模板。保留所有内容、数据、备注、链接和可编辑元素，替换旧背景、字体、颜色和品牌皮肤，不要把整页截图当成迁移结果。
 
-1. 逐页读取原始 PPT 或 PDF，提取标题、正文、数据、图表、图片、备注、来源和链接。
-2. 将原始封面中的主题名称、副标题和讲师信息映射到峰会固定第 2 页。
-3. 使用峰会固定第 1 页主 KV。
-4. 使用峰会固定第 3 页原始模板背景，不额外添加内容。
-5. 从第 4 页开始迁移原 PPT/PDF 的正文内容，保留原有信息结构，但不复制旧模板的视觉皮肤。
-6. 替换旧背景、旧母版装饰、旧页码、旧模板 Logo 和旧主题色。
-7. 适配峰会背景、Logo 禁入区、腾讯体 W7/W3、标题橙金色、正文白色和批准的色块系统。
-8. 将原内容的结论、Q&A 或联系方式放在倒数第二页，最后追加模板原版“谢谢观看 / THANKS”页。
-9. 对每个源页面和目标页面进行对照检查，避免文字、数字、图表或来源丢失。
+只检查合规：
 
-PDF 是扁平化文件。能恢复为可编辑文字、表格、图形的内容会尽量重建；无法恢复编辑性的图表或复杂图像，会保留清晰的高分辨率图像，并记录其不可编辑限制。不会用整页 PDF 截图代替完整迁移。
+> 使用 `$create-gba-architect-summit-slides` 审查这套 PPT 是否符合峰会固定页、腾讯体、文字颜色、背景、Logo 安全区和防重叠要求，不修改内容。
 
-详细规则见 [`references/migration-workflow.md`](references/migration-workflow.md)。
+## 一键预检与迁移计划
 
-## 固定页面
-
-| 页面 | 规则 |
-| --- | --- |
-| 第 1 页 | 原始主 KV 完全不变，只保留整页背景 |
-| 第 2 页 | 放置主题名称、副标题、讲师字段，使用固定位置、字号、字体和颜色 |
-| 第 3 页 | 使用原模板背景，不添加标题、照片、Logo、线条或占位内容 |
-| 最后一页 | 使用原模板“谢谢观看 / THANKS”整页资产，不重排文字，不添加任何内容 |
-
-第 2 页的核心文字规范：
-
-- 主标题：腾讯体 W7，88 pt，`#FD9D50`
-- 副标题：腾讯体 W7，54 pt，`#FD9D50`
-- 讲师字段：腾讯体 W3，28 pt，`#FFFFFF`
-
-## 品牌规范
-
-- 标题和展示文字使用腾讯体 W7。
-- 正文、说明、图表标签和注释使用腾讯体 W3。
-- 普通标题使用橙金色 `#FD9D50`。
-- 中文和英文说明正文使用白色 `#FFFFFF`。
-- 使用深海蓝背景、橙金色强调和规定的蓝色、绿色语义色块。
-- Logo 使用背景中已经嵌入的官方图形，不重新绘制、复制、改色或遮挡。
-- 每页使用批准的峰会背景，并为 Logo 和右下角峰会标识保留禁入区。
-
-## 避免字体重叠
-
-腾讯体、系统回退字体、PowerPoint、WPS 和 LibreOffice 的文字度量并不完全一致。仅在 XML 中写入正确字体，或让文本框自动缩小，不代表最终页面没有重叠。
-
-本 Skill 要求配合使用的 PPT 生成 Skill：
-
-- 在第 4 页以后为独立文字框保留至少 0.12 英寸的纵向间距。
-- 不允许两个独立文字框在横向和纵向同时实质交叉。
-- 不把自动缩小字体作为主要排版方法；优先扩大文本框、缩短文案或拆页。
-- 每次修改后重新渲染，逐页检查文字、图表标签、页脚和 Logo 安全区。
-- 先运行 PPT 生成 Skill 自带的溢出检查，再运行本 Skill 的品牌校验。
-- 最后一页直接使用固定整页资产，避免“谢谢观看”和“THANKS”在不同环境中发生位移或重叠。
-
-完整规则见 [`references/typography-safety.md`](references/typography-safety.md)。
-
-完整规范见：
-
-- [`references/template-contract.md`](references/template-contract.md)
-- [`references/brand-guidelines.md`](references/brand-guidelines.md)
-- [`references/text-color-system.md`](references/text-color-system.md)
-- [`references/color-block-system.md`](references/color-block-system.md)
-
-## 三种使用方式
-
-### 1. 生成新 PPT
-
-让常用 PPT Skill 负责内容、版式、渲染和溢出检测，本 Skill 负责模板适配、字体间距规则和最终验收。
-
-### 2. 迁移旧 PPT / PDF
-
-让 PPT/PDF 读取和编辑工具负责内容提取，本 Skill 负责固定页映射、背景替换、字体颜色适配和品牌验收。
-
-### 3. 只做合规检查
-
-不改动内容，只检查已有 PPT 是否符合峰会模板：
+支持 `.ppt`、`.pptx`、`.pdf`、`.html`、`.md` 源文件：
 
 ```bash
-python3 scripts/validate_deck_brand.py /absolute/path/to/deck.pptx
+python3 scripts/summit_adapter.py \
+  --source /absolute/path/source.pptx \
+  --output-dir /absolute/path/migration-work
 ```
 
-校验失败即视为不能交付，需修复后重新渲染并检查。
+输出：
 
-自动校验不能替代逐页渲染检查，两项都通过才可交付。
+- `adapter-report.json`：页数、页面分类、对象清单、字体/颜色替换候选、背景/遮罩、越界、Logo 区、文字框交叉和图表兼容性。
+- `migration-map.json`：源页到目标页的映射。
+- `element-migration-ledger.json`：PPTX 元素级迁移台账初稿。
+- `companion-instructions.md`：交给常用 PPT Skill 执行的明确规则。
 
-如果 LibreOffice 把中文渲染成方框，可使用 Skill 自带的预览回退脚本。它只影响预览，不会修改 PPTX 中的腾讯体字段：
+这个命令只做 dry-run，不会修改源文件，也不会代替 PPT 生成 Skill 自动创作内容。
+
+## PPT/PDF 迁移原则
+
+- PPTX：逐个保留文本框、形状、连接线、图片、表格、图表、超链接和备注，不把整页渲染图塞回目标稿。
+- 旧 `.ppt`：保留原件，先转换副本为 `.pptx`，对照渲染后再迁移。
+- PDF：尽量重建可编辑文字、表格和图形；只有无法恢复的单个对象才保留高清图，并记录不可编辑限制。
+- HTML/Markdown：保留标题层级、正文、图片、代码、链接和来源顺序，由配套 PPT Skill 决定分页与版式。
+- 不虚构讲师资料、头像、Logo、数据、结论或引用。
+
+详细流程见 [migration-workflow.md](references/migration-workflow.md) 和 [element-migration-quality.md](references/element-migration-quality.md)。
+
+## 品牌硬规则
+
+- 标题、章节标题、重点姓名和大数字：`腾讯体 W7`，通常为 `#FD9D50`。
+- 正文、说明、讲师职务、图表标签：`腾讯体 W3`，通常为 `#FFFFFF`。
+- Latin、East Asian、Complex Script 三个字体字段都要写入同一个准确腾讯体名称。
+- 每页使用批准背景；背景里已有官方标识，不重复添加、不重绘、不改色、不遮挡。
+- 所有内容避开 `brand-manifest.json` 定义的 Logo 禁入区。
+- 字体替换后必须重新渲染，修复重叠、裁切、异常换行和过小字号。
+- 色块和图表颜色只使用品牌清单允许的范围，不做激进全局换色。
+
+机器可读的唯一品牌清单是 [brand-manifest.json](assets/brand-manifest.json)，详细人工规则见 [template-contract.md](references/template-contract.md)。
+
+## 调色板工具
 
 ```bash
-python3 scripts/render_deck_preview.py /absolute/path/deck.pptx \
-  --soffice /absolute/path/to/ppt-skill/scripts/office/soffice.py
+python3 scripts/brand_palette.py --prompt
+python3 scripts/brand_palette.py --validate '#FD9D50' --json
+python3 scripts/brand_palette.py --nearest '#F6A05A' --json
+python3 scripts/brand_palette.py --chart
 ```
 
-## 目录说明
+近似色使用 CIEDE2000 计算，只提供替换建议，不代表允许无差别全局换色。
 
-- `SKILL.md`：Codex 实际使用的 Skill 指令
-- `agents/openai.yaml`：Skill 在 Codex 中的显示信息
-- `assets/fixed-pages/`：固定前三页和最终感谢页资产
-- `assets/backgrounds/`：批准的峰会背景
-- `assets/color-blocks/`：批准的色块资产
-- `references/`：模板契约、品牌规范、文字与排版安全、色块规范和迁移流程
-- `scripts/validate_deck_brand.py`：PPT 品牌与高风险文字框交叉验收脚本
-- `scripts/render_deck_preview.py`：腾讯体不可渲染时的预览专用字体回退工具
+## 保守修复
+
+先 dry-run：
+
+```bash
+python3 scripts/safe_repair_deck.py \
+  --input /absolute/path/input.pptx \
+  --report /absolute/path/repair-report.json
+```
+
+写入新副本：
+
+```bash
+python3 scripts/safe_repair_deck.py \
+  --input /absolute/path/input.pptx \
+  --output /absolute/path/repaired-copy.pptx \
+  --report /absolute/path/repair-report.json
+```
+
+脚本只负责字体名、直接文字颜色、图表字体/系列颜色和可选图表轴 ID 兼容修复。固定页插入、母版/背景迁移、内容重排和元素级迁移仍由配套 PPT Skill 完成。源文件永远不会被覆盖。
+
+## 最终验收
+
+所有 PPT：
+
+```bash
+python3 scripts/validate_deck_brand.py /absolute/path/deck.pptx
+```
+
+迁移 PPTX 还要运行：
+
+```bash
+python3 scripts/validate_element_migration.py \
+  --source /absolute/path/source.pptx \
+  --destination /absolute/path/deck.pptx \
+  --ledger /absolute/path/element-migration-ledger.json \
+  --migration-map /absolute/path/migration-map.json
+```
+
+自动检查通过不等于视觉合格。还必须使用配套 PPT Skill 做溢出检查，逐页渲染并人工检查文字重叠、裁切、Logo 遮挡、图表标签和最终感谢页。
+
+## 更新模板资产
+
+```bash
+python3 scripts/extract_template_assets.py \
+  --template /absolute/path/new-template.pptx \
+  --rendered-thanks /absolute/path/rendered-slide-13.png \
+  --output-dir /absolute/path/stage
+```
+
+脚本会分阶段提取六套背景、固定页、56 个 SVG 图标、文字几何和兼容性报告。确认哈希与清单一致后才使用 `--apply`，不会直接修改新模板原件。
+
+## 目录
+
+- `SKILL.md`：Codex 实际执行规则。
+- `assets/brand-manifest.json`：品牌与模板机器清单。
+- `assets/0815-architect-summit-template.pptx`：新版官方模板。
+- `assets/fixed-pages/`：最终稿固定页资产。
+- `assets/backgrounds/`：批准背景。
+- `assets/icons/`：源模板第 2 页提取的可选 SVG 素材。
+- `assets/color-blocks/`：批准色块。
+- `references/`：模板、迁移、字体、排版和自动化规范。
+- `scripts/`：预检、提取、修复、渲染和双重验收工具。

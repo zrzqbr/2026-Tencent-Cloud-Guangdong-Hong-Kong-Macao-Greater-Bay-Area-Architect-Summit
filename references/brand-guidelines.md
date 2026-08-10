@@ -35,8 +35,7 @@ Keep orange-gold as the dominant accent. Use blue and green as secondary data co
 
 - Required Chinese display/title: `腾讯体 W7`.
 - Required Chinese body: `腾讯体 W3`.
-- Approved fallback order: `微软雅黑`, `PingFang SC`, `Microsoft YaHei`, then a neutral sans-serif.
-- English fallback: `Helvetica`, then `Arial`.
+- Preview-only fallback order: `微软雅黑`, `PingFang SC`, `Microsoft YaHei`, then `Arial`. Never write a fallback into the delivered PPTX.
 - Use bold or W7 for major titles and numeric emphasis; use W3/regular for explanatory text.
 - Preserve natural letter spacing. Avoid decorative display fonts that conflict with the event artwork.
 - Size text for projection. As a practical baseline, use approximately 30-44 pt for slide titles and 18-26 pt for body text, then adjust to content and room size.
@@ -73,7 +72,7 @@ Keep orange-gold as the dominant accent. Use blue and green as secondary data co
   - Subtitle: x 3.05, y 3.22, w 7.21, h 0.76; `腾讯体 W7`; 54 pt; `#FD9D50`.
   - Speaker: x 5.19, y 5.27, w 2.87, h 0.39; `腾讯体 W3`; 28 pt; `#FFFFFF`.
   - Split a long detected topic into a concise main title and subtitle without changing its meaning. Add a speaker name only when supplied; otherwise leave the name portion empty.
-- Slide 3, original template page: use `background-03-section.jpg` unchanged and add no visible object. Populate it only when the user explicitly supplies content intended for this page.
+- Slide 3, optional speaker profile: use template source slide 4. Populate its exact label/name/role/photo roles only when verified speaker data exists; otherwise leave `background-03-section.jpg` blank. Never invent speaker data or a portrait.
 - Section divider: one short chapter statement with a strong numeral or thematic phrase.
 - Content: choose any structure suitable for the idea, including diagrams, comparisons, evidence, images, code, or narrative statements.
 - Penultimate slide: place the talk's own conclusion, contact detail, or Q&A prompt on an approved content or section background.
@@ -92,5 +91,5 @@ These roles guide narrative rhythm only. They do not prescribe fixed component a
 - Confirm the authoring skill's overflow test passed and every changed slide was rerendered after the last typography fix.
 - Confirm every text run follows the mandatory role-to-color mapping: orange-gold titles, white explanatory copy, and only the documented exceptions.
 - Confirm title runs use `腾讯体 W7` and body runs use `腾讯体 W3`. If embedded-font portability is required, confirm the deck was derived from the original template package.
-- Confirm slide 1 exactly matches the untouched main KV; slide 2 uses the exact 88/54/28 pt title-page typography and coordinates; slide 3 uses the original template background unchanged; and the final slide is the untouched canonical thank-you page.
+- Confirm slide 1 exactly matches the untouched main KV; slide 2 uses the exact 88/54/28 pt title-page typography and coordinates; slide 3 is either the exact populated speaker role layout or the approved blank background; and the final slide is the untouched canonical thank-you page.
 - Run `scripts/validate_deck_brand.py <deck.pptx>` and require a zero exit status.

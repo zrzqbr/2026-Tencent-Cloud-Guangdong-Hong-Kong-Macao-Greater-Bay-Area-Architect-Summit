@@ -1,72 +1,93 @@
-# PPT And PDF Migration Workflow
+# PPT, PDF, HTML, And Markdown Migration Workflow
 
-Use this workflow when the source deck was not created with the 2026 summit template. Produce a new `.pptx` that preserves the source's meaning and evidence while replacing its template skin with the summit system.
+Use this workflow when content already exists outside the summit template. The output is a new branded PPTX; this Skill supplies the constraints, plan, assets, and release gates while a companion presentation tool performs the actual authoring.
 
-## Migration Objective
+## Intake First
 
-- Preserve the source's titles, body copy, data, tables, diagrams, images, citations, links, speaker notes, and narrative order unless the user requests editorial changes.
-- Replace source backgrounds, template chrome, decorative marks, theme fonts, and theme colors with the summit backgrounds and brand rules.
-- Rebuild editable PowerPoint text, shapes, tables, and charts when the source provides enough information. Do not flatten an editable PPTX into page screenshots.
-- Keep structures flexible after slide 3. Preserve information architecture, not the old template's visual containers.
+Run the dry-run adapter before editing:
 
-## Source Intake
-
-- For `.pptx`, inspect every slide, master, layout, note, chart, table, image, link, and embedded media before editing.
-- For legacy `.ppt`, preserve the original file, convert a copy to `.pptx` with an available presentation tool, then compare every converted slide with the original render before migration.
-- For `.pdf`, render every page, extract selectable text and images, use OCR only where needed, and verify OCR results against the page image. Treat a PDF as flattened source material, not as an editable template.
-- Never omit a source page because extraction is difficult. Mark unreadable or unsupported elements for explicit review.
-
-## Source-To-Destination Map
-
-Create `migration-map.json` in the temporary working directory before building the destination deck. Account for every source slide or PDF page with one of these actions: `map-to-title`, `migrate`, `split`, `merge`, or `omit-with-user-approval`.
-
-```json
-{
-  "source": "/absolute/path/source.pdf",
-  "sourceType": "pdf",
-  "pages": [
-    {"sourcePage": 1, "action": "map-to-title", "destinationSlides": [2]},
-    {"sourcePage": 2, "action": "migrate", "destinationSlides": [4]}
-  ]
-}
+```bash
+python3 scripts/summit_adapter.py \
+  --source /absolute/path/source.pptx \
+  --output-dir /absolute/path/migration-work
 ```
 
-Do not use `omit-with-user-approval` without explicit user approval. Record every split or merge so source coverage remains auditable.
+It writes `adapter-report.json`, `migration-map.json`, `element-migration-ledger.json`, and `companion-instructions.md`.
 
-## Fixed-Page Mapping
+- `.pptx`: inspect slides, object counts, visible text, run fonts/colors, backgrounds, overlays, Logo zones, boundaries, collisions, and chart-axis compatibility.
+- `.ppt`: preserve the original and convert a copy to PPTX before element-level migration.
+- `.pdf`: recover editable text, tables, diagrams, and images where possible. Rasterize only irrecoverable individual objects, not every page.
+- `.html` / `.md`: treat headings, body content, images, code, and links as source evidence for migration. This does not turn this Skill into a standalone content generator.
 
-1. Insert the canonical main KV as destination slide 1 without changes.
-2. Map the source deck's talk title, subtitle, and supplied speaker name into the fixed slide-2 fields. Do not duplicate the old cover as a later content slide.
-3. Insert the canonical slide 3 unchanged and empty.
-4. Migrate source body content from destination slide 4 onward. Preserve an existing speaker biography or headshot page after slide 3 when the source contains one; do not invent it.
-5. Map a source closing message, conclusion, Q&A, or contact page to the penultimate destination slide when relevant.
-6. Append `assets/fixed-pages/slide-final-thanks.png` unchanged as the final slide. Do not rebuild or place source content on top of it.
+See [source-intake.md](source-intake.md) for format-specific requirements.
+
+## Mapping Rules
+
+- Destination slide 1: canonical template source slide 1, unchanged.
+- Destination slide 2: template source slide 3, populated with the detected title hierarchy and supplied speaker field.
+- Template source slide 2: excluded from output; use its SVGs only as optional visual assets.
+- Destination slide 3: template source slide 4. Populate verified speaker details/photo or leave the approved background blank.
+- Destination slide 4 onward: migrate source content with flexible structure.
+- Penultimate destination slide: the talk's own conclusion, Q&A, contact page, or closing statement.
+- Final destination slide: canonical rendered template source slide 13, unchanged.
+
+Account for every source page. One source page may split into several destination slides and several source pages may merge into one destination slide. Record the mapping explicitly. Omission requires user approval.
+
+## Element-Level PPTX Migration
+
+Read [element-migration-quality.md](element-migration-quality.md) before editing.
+
+- Preserve each textbox, shape, connector, image, table, chart, hyperlink, and note as an independent object.
+- Detach or replace legacy masters/layouts without flattening local content.
+- Delete only inventoried legacy background or template furniture.
+- Use an approved summit background as a true background fill or bottom-most full-slide picture.
+- Restyle imported objects in place when possible.
+- Rasterize only one unsupported element at a time and record it in `rasterizedElements`.
+- Complete `element-migration-ledger.json` with aggregate counts for one-to-one, split, or merge mappings.
 
 ## Brand Adaptation
 
-- Remove the source template's background artwork, master decoration, page chrome, old event branding, and duplicated template logos.
-- Preserve customer, product, partner, certification, or sponsor logos only when they are actual content. Use authentic source assets and keep them outside the summit Logo exclusion zones.
-- Place one approved summit background full-slide and bottom-most on every destination slide. Never add a separate summit logo because identity artwork is already baked into the background.
-- Set all destination title and display runs to `腾讯体 W7`; set body, explanation, chart-label, and annotation runs to `腾讯体 W3`.
-- Apply the mandatory role-to-color mapping: orange-gold titles, white explanatory copy, and only documented exceptions.
-- Replace source-theme fills with approved color blocks. Keep charts semantically readable while translating series colors into the summit palette.
-- Reflow, split, or redesign content when necessary for legibility. Do not preserve a source layout when it causes overlap, tiny text, or Logo obstruction.
-- Apply [typography-safety.md](typography-safety.md). Font substitution changes text metrics, so every migrated slide must be rerendered and checked for collisions after Tencent fonts are assigned.
+- Remove obsolete event branding, old page chrome, duplicated summit Logos, and legacy full-slide overlays.
+- Preserve customer/product/partner Logos when they are actual content and keep them outside summit Logo zones.
+- Set title/display text to `腾讯体 W7`; set body/explanatory/chart-label text to `腾讯体 W3`.
+- Apply orange-gold titles, white body text, and only the documented semantic color exceptions.
+- Translate large theme blocks and charts conservatively into the approved palette. Do not perform blind global recoloring.
+- After assigning Tencent fonts, reflow content and rerender. Font-name replacement alone does not prove layout safety.
+
+For conservative package-preserving repairs on a copy:
+
+```bash
+python3 scripts/safe_repair_deck.py \
+  --input /absolute/path/input.pptx \
+  --output /absolute/path/repaired-copy.pptx \
+  --report /absolute/path/repair-report.json
+```
+
+Add `--strict-colors` only after reviewing the dry-run report. Add `--repair-import-compatibility` when signed chart axis IDs prevent an importer from opening the package. Never overwrite the source.
 
 ## Content Fidelity
 
-- Preserve wording and numerical precision unless the user asks for rewriting or summarization.
-- Preserve source footnotes, citations, hyperlinks, units, legends, chart scales, table headers, and speaker notes.
-- Recompute charts from embedded or supplied data when possible. If PDF chart data cannot be recovered, preserve a clean high-resolution chart crop and record the editability limitation in the handoff.
-- Extract source images at their original resolution when possible; avoid screenshots containing obsolete backgrounds or page furniture.
-- Do not invent missing data, speaker details, logos, claims, or citations.
+- Preserve wording, numbers, units, scales, citations, sources, notes, and hyperlinks unless editorial changes are requested.
+- Preserve original-resolution source images where possible.
+- Recompute editable charts from embedded or supplied data when possible.
+- Record approved text changes, deletions, additions, and rasterization reasons in the ledger.
+- Do not invent missing speaker details, portraits, logos, claims, data, or sources.
 
 ## Release Gate
 
-1. Confirm every source page appears in `migration-map.json` and every mapped destination slide exists.
-2. Compare each source page with its destination slide at full size for content loss, OCR errors, altered numbers, missing notes, and incorrect crops.
-3. Run the companion authoring skill's overflow test and inspect the entire destination deck for narrative continuity, text fit, editable elements, background consistency, and Logo clear space.
-4. Confirm the talk's own conclusion is penultimate and the canonical thank-you page is final.
-5. Rerender every changed slide after fixing a typography issue.
-6. Run `scripts/validate_deck_brand.py <destination.pptx>` and require a zero exit status.
-7. Deliver only after content fidelity, rendered typography safety, template compliance, and automated brand validation all pass.
+1. Confirm the migration map covers every source page intended for body migration.
+2. Complete the ledger; no `after`, notes, or hyperlink status may remain unresolved when applicable.
+3. Run:
+
+```bash
+python3 scripts/validate_element_migration.py \
+  --source /absolute/path/source.pptx \
+  --destination /absolute/path/destination.pptx \
+  --ledger /absolute/path/element-migration-ledger.json \
+  --migration-map /absolute/path/migration-map.json
+```
+
+4. Run the companion tool's overflow checks, render all slides, and compare source/destination pages at full size.
+5. Confirm the talk conclusion is penultimate and the canonical thank-you slide is final.
+6. Run `python3 scripts/validate_deck_brand.py /absolute/path/destination.pptx`.
+7. Fix every error, rerender, and rerun both validators before delivery.

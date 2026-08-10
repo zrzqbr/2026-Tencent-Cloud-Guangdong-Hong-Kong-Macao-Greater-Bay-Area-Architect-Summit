@@ -1,115 +1,115 @@
 ---
 name: create-gba-architect-summit-slides
-description: "Apply the official 2026 Tencent Cloud Guangdong-Hong Kong-Macao Greater Bay Area Architect Summit PowerPoint template as a reusable brand, typography-safety, migration, and validation layer. This is not a standalone PPT generator: use it with a presentation-authoring skill, plugin, or tool. It can create or migrate summit decks while enforcing the fixed first three slides, fixed final thank-you slide, approved logo-bearing backgrounds, Tencent W7/W3 typography, text colors, color blocks, and anti-overlap release checks. Keep content structures flexible after slide 3. Use for creating, migrating, adapting, reviewing, or validating summit speaker decks, agendas, technical talks, case studies, and data stories."
+description: "Apply the official 2026 Tencent Cloud Guangdong-Hong Kong-Macao Greater Bay Area Architect Summit PowerPoint template as a reusable brand, migration, typography-safety, repair, and validation layer. This is not a standalone PPT generator: pair it with a presentation-authoring Skill, plugin, or tool. Use it to create, migrate, adapt, audit, or validate summit decks while enforcing the canonical output slides 1-3, fixed final thank-you slide, approved logo-bearing backgrounds, Tencent W7/W3 fonts, text colors, color blocks, editable element migration, and anti-overlap release checks. Keep content structures flexible after slide 3. Supports PPT/PPTX/PDF/HTML/Markdown intake."
 ---
 
 # 2026 GBA Architect Summit PPT Template
 
-Apply the summit's official template assets and brand rules to a PowerPoint workflow. Treat this skill as a reusable template and compliance layer, not as the engine that independently researches, outlines, designs, and exports a presentation.
+This is the template, brand, migration, and release-gate layer for the 2026 Tencent Cloud Guangdong-Hong Kong-Macao Greater Bay Area Architect Summit. It does not independently research a topic, create an outline, choose the narrative, design every content slide, or export a complete PPTX.
 
-> 定位说明：这是“2026 腾讯云粤港澳大湾区架构师峰会 PPT 模板 Skill”，不是独立的 PPT 生成 Skill。请把它与常用的 PPT 生成、内容研究、图表、图片、PDF 读取或 PPT 编辑 Skill 配合使用；其他 Skill 负责内容提取和制作，本 Skill 负责新 PPT 的模板适配、旧 PPT/PDF 的品牌迁移与最终验收。
+Pair it with the user's preferred presentation-authoring Skill/tool. The companion owns content and slide construction; this Skill owns summit identity, migration rules, safe repairs, and acceptance checks.
 
-## Role And Responsibility
+## Required Boundary
 
-Use this skill together with whichever presentation-authoring skill, plugin, or tool the user normally relies on.
+- Do not present this Skill as a standalone PPT generator.
+- Do not force the sample template's cards, circles, columns, chart treatment, or layouts after slide 3.
+- Do not invent speaker details, portraits, claims, data, citations, or Logos.
+- Do not flatten an editable source PPTX into slide screenshots.
+- Do not overwrite a source deck during repair or migration.
 
-- Let the companion authoring skill own topic research, source collection, outline, narrative, slide planning, layout construction, charts, images, speaker notes, PPTX export, and rendering.
-- Let the companion reading or editing capability inspect every source slide or PDF page, extract content, preserve notes and data, and rebuild editable presentation elements where possible.
-- Let this template skill own source-to-destination migration rules, the first-three-slide and final-slide contracts, canonical backgrounds, baked-in logos, Logo exclusion zones, Tencent font roles, text colors, approved color blocks, typography safety, and final validation.
-- Keep the companion skill's slide structures after slide 3 unless they violate a brand rule. Do not force the sample deck's cards, circles, columns, charts, or page composition onto the companion skill.
-- Require the companion skill to render every slide, run its own overflow checks, and revise any text collision before this skill performs the final brand gate. Passing the XML brand validator alone is never sufficient.
-- When no authoring skill is named, select an available PowerPoint creation or editing capability, then apply this template skill alongside it. Do not represent this skill alone as a complete PPT generation system.
+## Start Here
 
-## Combination Patterns
+1. Identify the companion presentation-authoring/reading tool.
+2. Read [references/template-contract.md](references/template-contract.md). It overrides all general guidance.
+3. Read [references/brand-guidelines.md](references/brand-guidelines.md), [references/text-color-system.md](references/text-color-system.md), [references/color-block-system.md](references/color-block-system.md), and [references/typography-safety.md](references/typography-safety.md).
+4. For an existing source, run the dry-run adapter and read [references/migration-workflow.md](references/migration-workflow.md).
+5. Let the companion tool build or migrate the deck while this Skill supplies the fixed pages, backgrounds, fonts, colors, Logo zones, and validation rules.
+6. Render every slide, repair text fit/overlap, then run the automated gates.
 
-### Generate A New Deck
+## Canonical Page Mapping
 
-1. Use the user's preferred content, research, outline, and presentation-authoring skills to develop the talk and build the PPTX.
-2. Apply this template skill throughout authoring so slides 1-3, the final slide, typography spacing, and all brand rules are correct from the start.
-3. Put the talk's own conclusion on the penultimate slide and append the canonical final thank-you slide unchanged.
-4. Render with the authoring capability, inspect text at full size, run overflow checks, and then run this skill's validator before delivery.
+- Template source slide 1 -> output slide 1, fixed main KV.
+- Template source slide 2 -> optional SVG asset library only; never output.
+- Template source slide 3 -> output slide 2, exact title/subtitle/speaker fields.
+- Template source slide 4 -> output slide 3, optional speaker profile. Populate verified data/photo or leave the approved background blank.
+- Template source slides 5-12 -> examples only, never required structures.
+- Template source slide 13 -> final output slide, unchanged canonical rendered image.
+- Put the talk's own conclusion/Q&A/contact page immediately before the final thank-you slide.
 
-Example request:
+Read [references/template-source-map.md](references/template-source-map.md) for package details and the known signed chart-axis compatibility issue.
 
-> Use my usual PPT generation skill to create a technical talk, and use `$create-gba-architect-summit-slides` as the 2026 summit template and brand-validation layer.
+## New Deck Workflow
 
-### Migrate An Existing PPT Or PDF
+1. Let the companion Skill research, outline, plan, author, and export.
+2. Start from `assets/0815-architect-summit-template.pptx` when preserving embedded Tencent fonts and master/layout behavior is useful.
+3. Lock output slides 1-3 and the final slide before authoring the body.
+4. From output slide 4 onward, let structure follow the content.
+5. Apply one approved background per slide, protect its Logo zones, use approved text roles/colors, and keep the talk conclusion penultimate.
 
-1. Read [references/migration-workflow.md](references/migration-workflow.md) and inventory every source slide or PDF page before editing.
-2. Use a PowerPoint or PDF capability to extract the source content, narrative, data, notes, images, and diagrams.
-3. Use this template skill to map the source title into slide 2, keep slides 1 and 3 fixed, migrate the remaining content from slide 4 onward, and append the canonical final thank-you slide.
-4. Remove the old template skin and adapt every destination slide to the approved backgrounds, baked-in Logo treatment, Tencent fonts, text colors, color blocks, and Logo exclusion zones.
-5. Preserve the source's information structure without copying its old visual theme. Rebuild editable elements when possible and record any PDF-derived element that must remain rasterized.
-6. Compare source and destination page by page, then validate the migrated `.pptx` with the bundled script.
+## Migration Workflow
 
-Example request:
+Run:
 
-> Migrate this existing PPT or PDF to the 2026 Tencent Cloud Greater Bay Area Architect Summit with `$create-gba-architect-summit-slides`; preserve all content and data while adapting backgrounds, logos, fonts, and brand colors.
+```bash
+python3 scripts/summit_adapter.py \
+  --source /absolute/path/source.pptx \
+  --output-dir /absolute/path/migration-work
+```
 
-### Validate Only
+Use the generated report, map, ledger stub, and companion instructions. For PPTX migration, preserve textboxes, shapes, connectors, images, tables, charts, notes, and hyperlinks as independent objects. Read [references/element-migration-quality.md](references/element-migration-quality.md) and [references/source-intake.md](references/source-intake.md).
 
-Use this skill without rewriting the narrative when the user only needs a compliance review. Inspect the rendered slides and run `scripts/validate_deck_brand.py <deck.pptx>`.
+Safe package-level repair is optional and conservative:
 
-Example request:
+```bash
+python3 scripts/safe_repair_deck.py \
+  --input /absolute/path/input.pptx \
+  --output /absolute/path/repaired-copy.pptx \
+  --report /absolute/path/repair-report.json
+```
 
-> Use `$create-gba-architect-summit-slides` to check whether this deck complies with the summit template; report violations without changing the content.
+Structural migration, reflow, split/merge decisions, fixed-page insertion, and final rendered QA remain the companion tool's responsibility. Read [references/automation-and-reporting.md](references/automation-and-reporting.md).
 
-## Workflow
+## Non-Negotiable Brand Rules
 
-1. Identify the companion skill or tool responsible for PPT creation or editing.
-2. Read [references/template-contract.md](references/template-contract.md) first. Treat it as authoritative when another reference appears ambiguous.
-3. Read [references/brand-guidelines.md](references/brand-guidelines.md), [references/text-color-system.md](references/text-color-system.md), [references/color-block-system.md](references/color-block-system.md), and [references/typography-safety.md](references/typography-safety.md) before the companion capability designs or edits slides.
-4. For a source PPT, PPTX, or PDF, read [references/migration-workflow.md](references/migration-workflow.md), create a complete source-to-destination map, and account for every source page before authoring.
-5. Let the companion capability inspect the user's content, audience, duration, and output requirements and develop or preserve the narrative.
-6. Lock slides 1-3 and the final thank-you slide before authoring the remaining content. Use the canonical assets in `assets/fixed-pages/` and do not substitute lookalike images.
-7. Let the companion capability choose the most suitable slide architecture from slide 4 onward. Treat the source deck's circles, cards, charts, and image arrangements as examples only.
-8. Apply the branded backgrounds in `assets/backgrounds/` or start from `assets/0815-architect-summit-template.pptx` when native PowerPoint masters are useful.
-9. Preserve the summit logo, event identity, palette, exact Tencent font roles, and atmospheric background system without taking ownership of the deck's content structure.
-10. Let the companion capability render the deck for visual inspection, including text fit, line spacing, text-box clearance, and every Logo exclusion zone. If LibreOffice renders Chinese as missing-glyph boxes, use `scripts/render_deck_preview.py` with the companion skill's `soffice.py` wrapper. Run the authoring skill's overflow test and complete at least one fix-and-rerender cycle.
-11. Run `scripts/validate_deck_brand.py <deck.pptx>`. For migrations, also compare every source page against its destination mapping. Do not deliver until visual inspection, typography safety, migration completeness, and automated validation pass.
+- 16:9 only.
+- Title/display/name roles: `腾讯体 W7`; body/explanation/chart-label roles: `腾讯体 W3`.
+- Set Latin, East Asian, and complex-script font fields to the exact Tencent font name.
+- Normal titles: `#FD9D50`; normal Chinese/English body copy: `#FFFFFF`.
+- Use only approved semantic exceptions and color blocks from the references and `assets/brand-manifest.json`.
+- Treat identity baked into backgrounds as authoritative. Never duplicate, redraw, recolor, crop, distort, or cover it.
+- Keep every foreground object outside the background-specific Logo exclusion zones.
+- Use preview fallbacks only for local rendering. Do not write fallback fonts into the delivered PPTX. Read [references/font-installation.md](references/font-installation.md).
+- Font replacement is incomplete until every slide is rerendered and all overlaps, clipping, and bad line breaks are fixed.
 
-## Design Freedom
+## Release Gate
 
-- Freely create grids, diagrams, timelines, tables, charts, full-bleed images, code views, architecture maps, or asymmetric editorial layouts.
-- Freely change the number, size, placement, and style of content containers.
-- Do not require cards. Do not repeat the sample deck's circular numbering, three-column layouts, percentage bubbles, or chart treatment unless they serve the content.
-- Prefer one strong idea per slide and use composition to express hierarchy.
-- Adapt density to the material: keynote pages may be sparse; technical architecture pages may be information-dense but must remain legible.
+For every deck:
 
-## Non-Negotiable Identity
+```bash
+python3 scripts/validate_deck_brand.py /absolute/path/deck.pptx
+```
 
-- Keep the 16:9 aspect ratio.
-- Follow the fixed first-three-slide contract exactly. Never reinterpret it from memory; use `references/template-contract.md` and `assets/fixed-pages/`.
-- Retain a recognizable summit background or approved summit illustration on every slide.
-- Keep the event logo visible in its established corner position unless the cover or closing artwork already contains the identity prominently.
-- Use the specified dark navy, orange-gold, white, and supporting accent palette.
-- Set title and display text to `腾讯体 W7`; set body and explanatory text to `腾讯体 W3`. Use fallbacks only for local preview when the Tencent fonts cannot be rendered.
-- Start from the original template when portable embedded Tencent fonts are required. When generating a new package, set every run to the exact Tencent font names and do not transplant embedded font parts across unrelated packages.
-- Apply text colors strictly by semantic role: orange-gold titles and white Chinese body copy. Follow the text-color reference without creative substitutions.
-- Do not recolor, distort, crop, recreate, or obscure the event logo.
-- Keep every foreground object, including page numbers and transparent overlays, outside the background-specific Logo exclusion zones in `references/template-contract.md`.
-- Keep independent text boxes from substantially intersecting after slide 3. Do not use auto-shrink as the primary layout strategy; follow `references/typography-safety.md` and reflow or shorten content instead.
-- Keep the final thank-you page unchanged as a single canonical full-slide asset. Place the talk's own summary, Q&A, or conclusion immediately before it.
-- Do not introduce an unrelated corporate template, dominant gradient, or competing visual theme.
-- Use only the approved color-block families and opacity ranges from the color-block reference. Do not invent additional large-area block colors.
+For migrated PPTX decks, also run:
 
-## Asset Selection
+```bash
+python3 scripts/validate_element_migration.py \
+  --source /absolute/path/source.pptx \
+  --destination /absolute/path/deck.pptx \
+  --ledger /absolute/path/element-migration-ledger.json \
+  --migration-map /absolute/path/migration-map.json
+```
 
-- `background-01-cover.jpg`: opening cover with full event illustration and title artwork.
-- `background-02-content.jpg`: standard content background with blue summit identity.
-- `background-03-section.jpg`: section or chapter transition background.
-- `background-04-content-alt.jpg`: alternate content background.
-- `background-05-content-alt.jpg`: alternate content background.
-- `background-06-closing.jpg`: closing/thank-you illustration.
-- `0815-architect-summit-template.pptx`: original editable reference deck with native masters, embedded fonts, and vector icon examples.
-- `fixed-pages/`: canonical, checksum-stable assets for slides 1-3. Use these instead of the ambiguously named general backgrounds.
-- `fixed-pages/slide-final-thanks.png`: canonical, font-independent final thank-you page. Use it as the only object on the final slide.
-- `color-blocks/`: exact-color transparent PNG blocks and a visual reference sheet.
+Passing XML checks alone is insufficient. The companion tool must run its overflow checks, render all slides, visually inspect at full size, fix every issue, and rerun the gates.
 
-Run `scripts/generate_color_blocks.py` to rebuild the color-block assets deterministically after changing the approved palette.
+## Assets And Utilities
 
-Run `scripts/render_deck_preview.py <deck.pptx> --soffice <path-to-soffice-or-wrapper>` when a normal LibreOffice preview cannot render Tencent-font Chinese. The aliases affect preview only and never modify the delivered PPTX.
+- `assets/brand-manifest.json`: machine-readable source of truth.
+- `assets/backgrounds/`: approved backgrounds.
+- `assets/fixed-pages/`: fixed output slide assets.
+- `assets/icons/`: optional SVGs extracted from template source slide 2.
+- `assets/color-blocks/`: approved color-block assets.
+- `scripts/brand_palette.py`: prompt/palette validation and CIEDE2000 nearest-color queries.
+- `scripts/extract_template_assets.py`: staged, hash-checked template refresh.
+- `scripts/render_deck_preview.py`: preview-only font fallback rendering.
 
-Run `scripts/validate_deck_brand.py <deck.pptx>` before every delivery. It verifies canonical asset hashes, fixed-slide object counts, the final thank-you page, background order/cropping, slide-2 geometry, direct text runs, and high-risk text-box intersections. A failure is a release blocker, not a warning.
-
-Use the original deck as an asset source, not as a mandatory page blueprint.
+Use the source template as an identity and asset source, not as a mandatory page blueprint.

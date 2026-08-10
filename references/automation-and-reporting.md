@@ -39,9 +39,32 @@ Run `safe_repair_deck.py` without `--output` for a dry-run report. With `--outpu
 Safe automatic scope:
 
 - explicit Latin/East Asian/complex-script Tencent font names;
-- direct text colors with conservative role inference;
-- chart text fonts and chart series palette;
+- fixed-page colors plus explicit object/table colors from a reviewed contrast map;
+- chart text fonts; chart text/series colors only in reviewed strict-color mode;
 - optional signed chart-axis compatibility conversion.
+
+The repair tool preserves unlisted body colors. `--strict-colors` requires `--contrast-map` so it cannot blindly turn light-card text white. It visits grouped shapes and table-cell runs and never adds or changes shape fills.
+
+Use 1-based slide/table numbers and OOXML `p:cNvPr` shape ids in the reviewed map:
+
+```json
+{
+  "slides": {
+    "10": {
+      "shapeColors": {"15": "00365F", "24": "111111"},
+      "tableTextColors": {"1": "00365F"},
+      "tableCellTextColors": {"1": {"1,1": "FFFFFF", "2,1": "111111"}}
+    },
+    "25": {
+      "shapeColors": {"9": "FFFFFF"},
+      "tableTextColor": "FFFFFF"
+    }
+  },
+  "normalizeChartColors": false
+}
+```
+
+Unlisted shapes, cells, and charts retain their source colors. Set `normalizeChartColors` to `true` only after reviewing chart semantics.
 
 Structural work remains owned by the companion presentation tool: fixed pages, background/master replacement, content reflow, split/merge decisions, editable element migration, and final rendered QA.
 

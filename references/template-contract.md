@@ -36,8 +36,8 @@ The fixed opening sequence is output slides 1-3. No outline, agenda, chapter, mi
 
 - Use the background from template source slide 3: `assets/fixed-pages/slide-02-title-background.jpg`.
 - Preserve the source page structure. Replace only the three canonical text roles; do not add, remove, regroup, resize, or reposition objects.
-- Add exactly three populated fields: main title, subtitle, and speaker field.
-- Do not invent a speaker name. Keep the field semantically empty when none is supplied.
+- Keep exactly three nonempty text shapes: main title, subtitle, and the speaker field.
+- Do not invent a speaker name. When none is supplied, retain only the canonical speaker label (for example `主讲人：`) and leave the name portion empty; this still counts as the required nonempty speaker field.
 - Split a long topic between main title and subtitle without changing meaning.
 
 | Field | Standard canvas, inches | Original canvas, inches | Font | Size | Color |
@@ -94,7 +94,7 @@ Approved background hashes:
 ## Typography And Color
 
 - Title, section, display, highlighted-name, and title-level numeric runs: `腾讯体 W7`, normally `#FD9D50`.
-- Body, explanation, organization, chart label, annotation, and speaker role runs: `腾讯体 W3`, normally `#FFFFFF`.
+- Body, explanation, organization, chart label, annotation, and speaker role runs: `腾讯体 W3`; use `#FFFFFF` on dark surfaces and `#00365F`, `#111111`, or `#000000` on verified white/light cards and table cells. Fixed-page field colors remain exact.
 - Set Latin, East Asian, and complex-script run fonts explicitly to the same required Tencent font.
 - Use `#FFE7B9`, muted gray, chart blue, and status green only for the semantic exceptions documented in the color references.
 - Font substitution changes metrics. Render after every typography pass and repair overlaps, clipping, and bad line breaks.
@@ -104,7 +104,7 @@ Approved background hashes:
 1. Run the companion presentation tool's overflow checks.
 2. Confirm output slides 1-3 remain the canonical fixed opening sequence and body content begins on slide 4.
 3. Render and visually inspect every slide at full size.
-4. Complete migration mapping and the element ledger when migrating an existing PPTX.
+4. Complete migration mapping and the schema-version 3 element ledger, including full-size render, surface-contrast, and zero-text-backing review fields, when migrating an existing PPTX.
 5. Run `scripts/validate_element_migration.py` for PPTX migration.
 6. Run `scripts/validate_deck_brand.py` for every deck.
 7. Fix every error, rerender affected slides, and rerun both gates.

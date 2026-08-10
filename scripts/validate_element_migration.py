@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import zipfile
 from pathlib import Path
@@ -89,8 +90,27 @@ def notes_text(archive: zipfile.ZipFile, slide_path: str) -> str:
     return ""
 
 
-def hyperlink_count(archive: zipfile.ZipFile, slide_path: str) -> int:
-    return sum(1 for rel_type, _ in rel_map(archive, part_rels_name(slide_path)).values() if rel_type.endswith("/hyperlink"))
+def hyperlink_targets(archive: zipfile.ZipFile, slide_path: str) -> list[str]:
+    return sorted(target for rel_type, target in rel_map(archive, part_rels_name(slide_path)).values() if rel_type.endswith("/hyperlink"))
+
+
+def apply_approved_text_changes(source_text: str, changes: list[dict]) -> tuple[str, list[str]]:
+    value = source_text
+    errors = []
+    for index, item in enumerate(changes, 1):
+        if not isinstance(item, dict):
+            errors.append(f"approvedTextChanges item {index} must be an object with before/after")
+            continue
+        before = re.sub(r"\s+", "", str(item.get("before", "")))
+        after = re.sub(r"\s+", "", str(item.get("after", "")))
+        if not before:
+            errors.append(f"approvedTextChanges item {index} requires nonempty before text")
+            continue
+        if before not in value:
+            errors.append(f"approvedTextChanges item {index} before text does not occur in the source")
+            continue
+        value = value.replace(before, after, 1)
+    return value, errors
 
 
 def expected_source_pages(ledger: dict, migration_map_path: Path | None) -> set[int]:
@@ -117,12 +137,27 @@ def validate(source: Path, destination: Path, ledger_path: Path, migration_map_p
     if not entries:
         return ["Ledger contains no migrated slide entries"]
     expected_pages = expected_source_pages(ledger, migration_map_path)
+    require_visual_review = int(ledger.get("schemaVersion", 1)) >= 3
     covered_pages = set()
     try:
         with zipfile.ZipFile(source) as src, zipfile.ZipFile(destination) as dst:
             _, src_paths = slide_paths(src)
             _, dst_paths = slide_paths(dst)
             for entry_index, entry in enumerate(entries, 1):
+                if require_visual_review:
+                    review = entry.get("visualReview") or {}
+                    if review.get("renderedAtFullSize") is not True:
+                        errors.append(f"Ledger entry {entry_index} full-size rendered review is unresolved")
+                    if review.get("surfaceContrastReviewed") is not True:
+                        errors.append(f"Ledger entry {entry_index} surface-contrast review is unresolved")
+                    if review.get("textBackingShapesAdded") != 0:
+                        errors.append(f"Ledger entry {entry_index} must add zero readability-only text backing shapes")
+                    if review.get("status") != "passed":
+                        errors.append(f"Ledger entry {entry_index} visual review status must be 'passed'")
+                    if entry.get("notesPreserved") is not True:
+                        errors.append(f"Ledger entry {entry_index} notesPreserved must be true after comparison, including when both sides have no notes")
+                    if entry.get("hyperlinksPreserved") is not True:
+                        errors.append(f"Ledger entry {entry_index} hyperlinksPreserved must be true after target comparison, including when both sides have no links")
                 try:
                     source_pages = list_value(entry, "sourcePages", "sourcePage")
                     destination_slides = list_value(entry, "destinationSlides", "destinationSlide")
@@ -163,8 +198,10 @@ def validate(source: Path, destination: Path, ledger_path: Path, migration_map_p
                 src_text = aggregate_text(src, src_paths, source_pages)
                 dst_text = aggregate_text(dst, dst_paths, destination_slides)
                 allowed_text_changes = entry.get("approvedTextChanges", [])
-                if src_text != dst_text and not allowed_text_changes:
-                    errors.append(f"Source pages {source_pages} visible text does not match destination slides {destination_slides}")
+                expected_text, change_errors = apply_approved_text_changes(src_text, allowed_text_changes)
+                errors.extend(f"Ledger entry {entry_index} {message}" for message in change_errors)
+                if expected_text != dst_text:
+                    errors.append(f"Source pages {source_pages} visible text does not match destination slides {destination_slides} after declared text changes")
 
                 source_objects = sum(src_counts.values())
                 destination_objects = sum(dst_counts.values()) - len(entry.get("addedBrandElements", []))
@@ -182,10 +219,10 @@ def validate(source: Path, destination: Path, ledger_path: Path, migration_map_p
                     if source_notes != destination_notes:
                         errors.append(f"Source pages {source_pages} notes do not match destination slides {destination_slides}")
                 if entry.get("hyperlinksPreserved") is True:
-                    source_links = sum(hyperlink_count(src, src_paths[page - 1]) for page in source_pages)
-                    destination_links = sum(hyperlink_count(dst, dst_paths[page - 1]) for page in destination_slides)
+                    source_links = sorted(target for page in source_pages for target in hyperlink_targets(src, src_paths[page - 1]))
+                    destination_links = sorted(target for page in destination_slides for target in hyperlink_targets(dst, dst_paths[page - 1]))
                     if source_links != destination_links:
-                        errors.append(f"Source pages {source_pages} hyperlink count {source_links} differs from destination {destination_links}")
+                        errors.append(f"Source pages {source_pages} hyperlink targets {source_links} differ from destination {destination_links}")
     except (FileNotFoundError, zipfile.BadZipFile, KeyError, json.JSONDecodeError) as exc:
         return [f"Cannot validate migration packages: {exc}"]
 
@@ -216,7 +253,7 @@ def main() -> None:
         for error in errors:
             print(f"- {error}")
         sys.exit(1)
-    print("Element migration validation passed: mapped text, object counts, editability, and declared notes/hyperlinks are preserved.")
+    print("Element migration validation passed: mapped text, object counts, editability, declared notes/hyperlinks, and required visual-review records are complete.")
 
 
 if __name__ == "__main__":

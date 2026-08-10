@@ -11,7 +11,8 @@ Use only the following families for filled rectangles, bands, labels, diagram gr
 
 - Use no more than three structural panels on a typical slide.
 - Prefer open composition without panels when the background remains readable.
-- Do not use white or pale fills as large content cards on the dark background.
+- For new summit-native layouts, prefer open composition or approved navy panels. During migration, preserve white/light source-native cards when they carry real information structure or are needed for faithful image/table/diagram contrast.
+- Never insert a large or full-slide primary panel above migrated content. Approved artwork must be a true background fill or the bottom-most full-slide image.
 
 ## Emphasis Blocks
 
@@ -37,7 +38,7 @@ Use only the following families for filled rectangles, bands, labels, diagram gr
 
 ## Neutral Treatment
 
-- Use `#FFFFFF` for main text and thin outlines. All Chinese explanatory copy must remain white.
+- Use `#FFFFFF` for main text on dark surfaces and thin outlines. On verified white/light cards and table cells, use `#00365F`, `#111111`, or `#000000`.
 - Use `#A7A7A7` or `#8B8C8C` for muted annotations and subdued dividers.
 - Do not use gray as a large filled block.
 - Prefer 1-1.5 pt white outlines at 25-45% opacity for unfilled groups.
@@ -50,6 +51,7 @@ Use only the following families for filled rectangles, bands, labels, diagram gr
 - Avoid pill-shaped containers unless representing status or a short category label.
 - Avoid large circles as default content containers; reserve circles for data with an intrinsic radial meaning.
 - Avoid stacked translucent glass panels, bevels, heavy shadows, glossy effects, and gradients inside blocks.
+- Do not add any block solely as a backing plate for text readability. Change the text color to match the actual surface.
 
 ## Combination Limits
 
@@ -57,6 +59,7 @@ Use only the following families for filled rectangles, bands, labels, diagram gr
 - Add either warm highlight or one semantic color when the content requires it.
 - Do not use all six block colors on one slide unless displaying a data legend that genuinely needs them.
 - Keep at least 60% of the slide visually governed by the summit background and negative space rather than filled blocks.
+- In element migration, preserve meaningful source containers and count only genuinely new brand objects in the ledger. Do not classify preserved source cards as brand additions.
 
 ## Assets
 

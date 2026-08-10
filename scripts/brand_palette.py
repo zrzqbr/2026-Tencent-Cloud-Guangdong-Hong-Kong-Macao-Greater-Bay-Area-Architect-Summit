@@ -41,7 +41,8 @@ def prompt_snippet(manifest: dict) -> str:
         [
             "2026 腾讯云粤港澳大湾区架构师峰会品牌约束：",
             f"- 标题、章节标题、主题短语：腾讯体 W7，#{palette['title']}。",
-            f"- 中文/英文说明正文：腾讯体 W3，#{palette['body']}。",
+            f"- 中文/英文说明正文：腾讯体 W3；深色背景用 #{palette['body']}，白色/浅色卡片或表格单元格用 #{palette['darkText'][0]}、#{palette['darkText'][1]} 或 #{palette['darkText'][2]}。",
+            "- 禁止为了可读性在文字后新增矩形、横条、半透明深蓝面板或文本框填充；必须先确认真实底面。",
             f"- 图表系列优先顺序：{' -> '.join('#' + color for color in palette['chartSeries'])}。",
             "- 只使用 brand-manifest.json 中批准的背景、色块和 Logo 禁入区。",
             "- 第 4 页以后不限制卡片、图表、流程、分栏或其他结构；结构必须服务内容。",

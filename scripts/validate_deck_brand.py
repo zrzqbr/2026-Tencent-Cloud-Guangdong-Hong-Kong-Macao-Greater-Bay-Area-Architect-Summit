@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import zipfile
 from pathlib import Path
@@ -17,9 +18,13 @@ from brand_core import (
     inches_box_to_emu,
     load_manifest,
     negative_chart_axis_ids,
+    package_path,
+    part_rels_name,
+    rel_map,
     sha256,
     shape_box,
     slide_and_layout_images,
+    slide_layout_path,
     slide_paths,
     text_runs,
     text_shapes,
@@ -127,20 +132,159 @@ def check_text_safety(errors: list[str], slide_number: int, root, canvas: tuple[
                 errors.append(f"Slide {slide_number} text boxes {first_text[:24]!r} and {second_text[:24]!r} substantially intersect")
 
 
-def check_logo_zones(errors: list[str], slide_number: int, root, background: dict, canvas: tuple[int, int], manifest: dict) -> None:
+def check_logo_zones(
+    errors: list[str],
+    slide_number: int,
+    root,
+    background: dict,
+    canvas: tuple[int, int],
+    manifest: dict,
+    background_candidate: dict | None,
+) -> None:
     if slide_number <= 3:
         return
     scale = canvas[0] / manifest["canvas"]["standardEmu"][0]
     zones = [inches_box_to_emu(zone, scale) for zone in background.get("logoZonesStandardInches", [])]
-    for value, box in text_shapes(root):
+    approved_local_picture = bool(background_candidate and background_candidate.get("kind") == "picture")
+    for position, node in enumerate(content_objects(root)):
+        box = shape_box(node)
+        kind = node.tag.rsplit("}", 1)[-1]
+        is_approved_background_picture = approved_local_picture and position == 0 and kind == "pic" and box_matches(box, (0, 0, *canvas), 2000)
+        if box is None or is_approved_background_picture:
+            continue
         if any(boxes_intersect(box, zone) for zone in zones):
-            errors.append(f"Slide {slide_number} text {value[:30]!r} enters an approved Logo exclusion zone")
+            value = text_value(node).strip()
+            name_node = node.find(".//p:cNvPr", {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"})
+            name = name_node.get("name", "") if name_node is not None else ""
+            label = value[:30] or name or kind
+            errors.append(f"Slide {slide_number} foreground {kind} {label!r} enters an approved Logo exclusion zone")
 
 
-def validate(deck: Path, element_migration: bool = False) -> list[str]:
-    del element_migration  # Brand rules stay strict for new and migrated decks.
+def relative_luminance(color: str) -> float:
+    channels = [int(color[index:index + 2], 16) / 255 for index in (0, 2, 4)]
+    linear = [value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4 for value in channels]
+    return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+
+def node_has_dark_fill(node) -> bool:
+    namespaces = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main", "a": "http://schemas.openxmlformats.org/drawingml/2006/main"}
+    props = node.find("./p:spPr", namespaces)
+    if props is None:
+        return False
+    rgb_nodes = props.findall(".//a:srgbClr", namespaces)
+    rgb_values = [item.get("val", "").upper() for item in rgb_nodes if len(item.get("val", "")) == 6]
+    if rgb_values and sum(relative_luminance(value) for value in rgb_values) / len(rgb_values) <= 0.35:
+        return True
+    scheme_values = {item.get("val", "") for item in props.findall(".//a:schemeClr", namespaces)}
+    return bool(scheme_values & {"dk1", "dk2", "tx1", "accent1", "accent2", "accent3", "accent4", "accent5", "accent6"})
+
+
+def group_has_large_dark_child(group, threshold: float) -> bool:
+    namespaces = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main", "a": "http://schemas.openxmlformats.org/drawingml/2006/main"}
+    child_extent = group.find("./p:grpSpPr/a:xfrm/a:chExt", namespaces)
+    try:
+        group_area = int(child_extent.get("cx")) * int(child_extent.get("cy")) if child_extent is not None else 0
+    except (TypeError, ValueError):
+        group_area = 0
+    if not group_area:
+        return False
+    for child in group.findall(".//p:sp", namespaces):
+        box = shape_box(child)
+        if box and node_has_dark_fill(child) and box[2] * box[3] / group_area >= threshold:
+            return True
+    return False
+
+
+def check_large_foreground_panels(
+    errors: list[str],
+    slide_number: int,
+    root,
+    canvas: tuple[int, int],
+    manifest: dict,
+    background_candidate: dict | None = None,
+) -> None:
+    drawables = content_objects(root)
+    canvas_area = canvas[0] * canvas[1]
+    approved_local_picture = bool(background_candidate and background_candidate.get("kind") == "picture")
+    threshold = manifest["release"]["maximumLargeDarkForegroundPanelAreaRatio"]
+    for position, node in enumerate(drawables):
+        box = shape_box(node)
+        if box is None:
+            continue
+        kind = node.tag.rsplit("}", 1)[-1]
+        area_ratio = box[2] * box[3] / canvas_area if canvas_area else 0
+        is_bottom_background_picture = approved_local_picture and position == 0 and kind == "pic" and box_matches(box, (0, 0, *canvas), 2000)
+        if is_bottom_background_picture:
+            continue
+        if kind == "pic" and area_ratio >= 0.9:
+            errors.append(f"Slide {slide_number} contains a non-background picture covering {area_ratio:.0%} of the canvas")
+        elif kind == "sp" and node_has_dark_fill(node) and area_ratio >= threshold:
+            errors.append(f"Slide {slide_number} contains a large dark foreground shape covering {area_ratio:.0%} of the canvas")
+        elif kind == "grpSp" and area_ratio >= threshold and group_has_large_dark_child(node, threshold):
+            errors.append(f"Slide {slide_number} contains a large grouped dark foreground field covering {area_ratio:.0%} of the canvas")
+
+
+def check_inherited_foreground(
+    errors: list[str],
+    slide_number: int,
+    archive: zipfile.ZipFile,
+    slide_path: str,
+    canvas: tuple[int, int],
+    background_candidate: dict | None,
+) -> None:
+    layout_path = slide_layout_path(archive, slide_path)
+    if not layout_path:
+        return
+    inherited_parts = [("layout", layout_path)]
+    for rel_type, target in rel_map(archive, part_rels_name(layout_path)).values():
+        if rel_type.endswith("/slideMaster"):
+            inherited_parts.append(("master", package_path(str(Path(layout_path).parent).replace("\\", "/"), target)))
+    namespaces = {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}
+    for level, part_path in inherited_parts:
+        for position, node in enumerate(content_objects(xml(archive, part_path))):
+            if node.find(".//p:ph", namespaces) is not None:
+                continue
+            box = shape_box(node)
+            kind = node.tag.rsplit("}", 1)[-1]
+            approved_layout_picture = bool(
+                level == "layout"
+                and background_candidate
+                and background_candidate.get("kind") == "layout-picture"
+                and position == 0
+                and kind == "pic"
+                and box_matches(box, (0, 0, *canvas), 2000)
+            )
+            if not approved_layout_picture:
+                errors.append(f"Slide {slide_number} inherits non-placeholder foreground {kind} from {level} part {part_path}")
+
+
+def migration_review_errors(ledger_path: Path | None) -> list[str]:
+    if ledger_path is None:
+        return []
+    try:
+        ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        return [f"Cannot read element-migration ledger: {exc}"]
+    if int(ledger.get("schemaVersion", 1)) < 3:
+        return []
+    errors = []
+    for index, entry in enumerate(ledger.get("slides", []), 1):
+        review = entry.get("visualReview") or {}
+        if review.get("renderedAtFullSize") is not True:
+            errors.append(f"Ledger entry {index} full-size rendered review is unresolved")
+        if review.get("surfaceContrastReviewed") is not True:
+            errors.append(f"Ledger entry {index} surface-contrast review is unresolved")
+        if review.get("textBackingShapesAdded") != 0:
+            errors.append(f"Ledger entry {index} must add zero readability-only text backing shapes")
+        if review.get("status") != "passed":
+            errors.append(f"Ledger entry {index} visual review status must be 'passed'")
+    return errors
+
+
+def validate(deck: Path, element_migration_ledger: Path | None = None) -> list[str]:
+    element_migration = element_migration_ledger is not None
     manifest = load_manifest()
-    errors = asset_errors(manifest)
+    errors = asset_errors(manifest) + migration_review_errors(element_migration_ledger)
     allowed_canvases = {tuple(manifest["canvas"]["standardEmu"]), tuple(manifest["canvas"]["originalEmu"])}
     final_hash = manifest["fixedPages"]["thanks"]["sha256"]
 
@@ -159,6 +303,21 @@ def validate(deck: Path, element_migration: bool = False) -> list[str]:
         roots = [xml(archive, path) for path in paths]
         background_matches = []
         for index, (path, root) in enumerate(zip(paths, roots), 1):
+            if index == len(paths):
+                canonical_final = next(
+                    (
+                        item
+                        for item in slide_and_layout_images(archive, path, root)
+                        if item["kind"] == "picture"
+                        and sha256(item["data"]) == final_hash
+                        and item.get("box") == (0, 0, *canvas)
+                        and not item.get("cropped")
+                    ),
+                    None,
+                )
+                if canonical_final:
+                    background_matches.append(({"id": "canonical-final"}, canonical_final))
+                    continue
             spec, candidate = approved_background(archive, path, root, canvas, manifest)
             background_matches.append((spec, candidate))
             if not spec:
@@ -168,7 +327,10 @@ def validate(deck: Path, element_migration: bool = False) -> list[str]:
                 drawables = content_objects(root)
                 if not drawables or drawables[0].tag.rsplit("}", 1)[-1] != "pic":
                     errors.append(f"Slide {index} local background picture must be bottom-most")
-            check_logo_zones(errors, index, root, spec, canvas, manifest)
+            if 4 <= index < len(paths):
+                check_large_foreground_panels(errors, index, root, canvas, manifest, candidate)
+                check_inherited_foreground(errors, index, archive, path, canvas, candidate)
+            check_logo_zones(errors, index, root, spec, canvas, manifest, candidate)
 
         cover_spec, cover_candidate = background_matches[0]
         if not cover_spec or cover_spec["id"] != "cover":
@@ -265,10 +427,11 @@ def validate(deck: Path, element_migration: bool = False) -> list[str]:
                 fonts = set(run["fonts"].values())
                 if None in fonts or len(fonts) != 1 or not fonts <= allowed_fonts:
                     errors.append(f"Slide {slide_index} text {run['text'][:24]!r} must set latin/ea/cs to one exact Tencent font; found {run['fonts']}")
-                if run["color"] not in allowed_colors:
+                migration_body = element_migration and 4 <= slide_index < len(roots)
+                if not migration_body and run["color"] not in allowed_colors:
                     found = f"#{run['color']}" if run["color"] else "no direct sRGB color"
                     errors.append(f"Slide {slide_index} text {run['text'][:24]!r} uses disallowed color {found}")
-            if 4 <= slide_index < len(roots):
+            if 4 <= slide_index < len(roots) and not element_migration:
                 check_text_safety(errors, slide_index, root, canvas, manifest)
 
         axis_issues = negative_chart_axis_ids(archive)
@@ -280,20 +443,25 @@ def validate(deck: Path, element_migration: bool = False) -> list[str]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("pptx", type=Path)
-    parser.add_argument("--element-migration-ledger", type=Path, help="Completed ledger; brand validation remains strict in migration mode")
+    parser.add_argument(
+        "--element-migration-ledger",
+        type=Path,
+        help="Completed ledger; fixed pages/backgrounds/fonts remain strict while body colors/overlaps use the visual-review record",
+    )
     args = parser.parse_args()
     deck = args.pptx.expanduser().resolve()
     if not deck.is_file() or deck.suffix.lower() != ".pptx":
         parser.error("pptx must be an existing .pptx file")
     if args.element_migration_ledger and not args.element_migration_ledger.exists():
         parser.error("--element-migration-ledger does not exist")
-    errors = validate(deck, element_migration=bool(args.element_migration_ledger))
+    ledger = args.element_migration_ledger.expanduser().resolve() if args.element_migration_ledger else None
+    errors = validate(deck, element_migration_ledger=ledger)
     if errors:
         print("Brand validation failed:")
         for error in errors:
             print(f"- {error}")
         sys.exit(1)
-    print("Brand validation passed: fixed pages, approved backgrounds, Logo zones, Tencent fonts, text colors, and collision checks are valid.")
+    print("Brand validation passed: fixed pages, approved backgrounds, Logo zones, Tencent fonts, and applicable new-deck or migration review gates are valid.")
 
 
 if __name__ == "__main__":

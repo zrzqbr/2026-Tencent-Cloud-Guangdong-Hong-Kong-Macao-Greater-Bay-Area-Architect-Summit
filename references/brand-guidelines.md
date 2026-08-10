@@ -13,7 +13,7 @@ Express a technology summit rooted in the Greater Bay Area: deep maritime blue, 
 - Cover and closing pages: use the full illustrated streetscape and wave artwork.
 - Section pages: use a branded blue background with a stronger wave accent or event-title marker.
 - Do not place opaque full-slide panels over the background. Preserve enough atmospheric context to identify the event.
-- Add localized dark overlays only when required for text contrast.
+- Prefer changing text color or placement for contrast. Do not add a localized overlay or text backing plate solely to make text readable; preserve an existing semantic container only when it carries real structure.
 
 ## Color System
 
@@ -24,6 +24,7 @@ Use these observed source-deck colors as the core palette:
 | Primary background | `#00365F` to `#063B64` | Deep maritime navy; sample from the supplied background when possible |
 | Primary warm accent | `#FD9D50` | Titles, numbers, dividers, emphasis, wave-linked highlights |
 | Text on dark | `#FFFFFF` | Main body and high-priority labels |
+| Text on light | `#00365F`, `#111111`, or `#000000` | White/light cards, table cells, and source-native light containers |
 | Soft warm highlight | `#FFE7B9` | Supporting emphasis and closing-page warmth |
 | Muted text | `#A7A7A7` or `#8B8C8C` | Secondary annotations only |
 | Blue data accent | `#4A6FE8` | Charts and technical categories |
@@ -90,7 +91,8 @@ These roles guide narrative rhythm only. They do not prescribe fixed component a
 - Confirm charts, diagrams, and images use the brand palette without sacrificing clarity.
 - Confirm there are no overlaps, clipped text, broken fonts, or low-resolution assets in the rendered output.
 - Confirm the authoring skill's overflow test passed and every changed slide was rerendered after the last typography fix.
-- Confirm every text run follows the mandatory role-to-color mapping: orange-gold titles, white explanatory copy, and only the documented exceptions.
+- Confirm every text run follows the mandatory surface-aware mapping: orange-gold titles, white explanatory copy on dark surfaces, dark explanatory copy on verified light surfaces, and only documented semantic exceptions.
+- Confirm no new rectangle, banner, translucent field, or text-box fill was added solely behind text.
 - Confirm title runs use `腾讯体 W7` and body runs use `腾讯体 W3`. If embedded-font portability is required, confirm the deck was derived from the original template package.
 - Confirm slide 1 exactly matches the untouched main KV; slide 2 uses the exact 88/54/28 pt title-page typography and coordinates; slide 3 is either the exact populated speaker role layout or the approved blank background; and the final slide is the untouched canonical thank-you page.
 - Run `scripts/validate_deck_brand.py <deck.pptx>` and require a zero exit status.

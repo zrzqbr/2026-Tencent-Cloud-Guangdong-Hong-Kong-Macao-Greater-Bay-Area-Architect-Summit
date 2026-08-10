@@ -43,7 +43,9 @@ Read [element-migration-quality.md](element-migration-quality.md) before editing
 - Detach or replace legacy masters/layouts without flattening local content.
 - Delete only inventoried legacy background or template furniture.
 - Use an approved summit background as a true background fill or bottom-most full-slide picture.
+- Never place a full-slide or large translucent foreground panel above migrated content.
 - Restyle imported objects in place when possible.
+- Resolve the actual surface beneath every text object, including separate sibling card shapes, group containers, and table-cell fills. Read [contrast-aware-migration.md](contrast-aware-migration.md).
 - Rasterize only one unsupported element at a time and record it in `rasterizedElements`.
 - Complete `element-migration-ledger.json` with aggregate counts for one-to-one, split, or merge mappings.
 
@@ -52,7 +54,8 @@ Read [element-migration-quality.md](element-migration-quality.md) before editing
 - Remove obsolete event branding, old page chrome, duplicated summit Logos, and legacy full-slide overlays.
 - Preserve customer/product/partner Logos when they are actual content and keep them outside summit Logo zones.
 - Set title/display text to `腾讯体 W7`; set body/explanatory/chart-label text to `腾讯体 W3`.
-- Apply orange-gold titles, white body text, and only the documented semantic color exceptions.
+- Apply orange-gold titles and surface-aware body text: white on dark surfaces; deep navy or black on verified light cards/table cells.
+- Do not add a shape or text-box fill solely to improve readability.
 - Translate large theme blocks and charts conservatively into the approved palette. Do not perform blind global recoloring.
 - After assigning Tencent fonts, reflow content and rerender. Font-name replacement alone does not prove layout safety.
 
@@ -65,7 +68,7 @@ python3 scripts/safe_repair_deck.py \
   --report /absolute/path/repair-report.json
 ```
 
-Add `--strict-colors` only after reviewing the dry-run report. Add `--repair-import-compatibility` when signed chart axis IDs prevent an importer from opening the package. Never overwrite the source.
+Use `--strict-colors` only together with a reviewed `--contrast-map`; unlisted body objects retain their source colors. Add `--repair-import-compatibility` when signed chart axis IDs prevent an importer from opening the package. Never overwrite the source.
 
 ## Content Fidelity
 
@@ -78,7 +81,7 @@ Add `--strict-colors` only after reviewing the dry-run report. Add `--repair-imp
 ## Release Gate
 
 1. Confirm the migration map covers every source page intended for body migration.
-2. Complete the ledger; no `after`, notes, or hyperlink status may remain unresolved when applicable.
+2. Complete the ledger; no `after`, notes, hyperlink status, or schema-version 3 visual-review field may remain unresolved. Set notes/hyperlink preservation true only after comparing content and link targets, even when both sides have none.
 3. Run:
 
 ```bash
@@ -89,7 +92,7 @@ python3 scripts/validate_element_migration.py \
   --migration-map /absolute/path/migration-map.json
 ```
 
-4. Run the companion tool's overflow checks, render all slides, and compare source/destination pages at full size.
+4. Run the companion tool's overflow checks, render all slides, and compare source/destination pages at full size. Audit light-card/dark-surface contrast and confirm that no readability-only text backing panel was added.
 5. Confirm the talk conclusion is penultimate and the canonical thank-you slide is final.
-6. Run `python3 scripts/validate_deck_brand.py /absolute/path/destination.pptx`.
-7. Fix every error, rerender, and rerun both validators before delivery.
+6. Run `python3 scripts/validate_deck_brand.py /absolute/path/destination.pptx --element-migration-ledger /absolute/path/element-migration-ledger.json`.
+7. Rebuild from the source after any Skill rule/script update; do not deliver a stale artifact. Fix every error, rerender, and rerun both validators before delivery.

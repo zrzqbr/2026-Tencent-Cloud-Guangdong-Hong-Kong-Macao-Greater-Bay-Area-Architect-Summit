@@ -33,6 +33,8 @@ Use these rules with the companion PPT authoring skill. Correct font names and c
 - A label box extends under a neighboring value or description box even though the visible words appear separated in one renderer.
 - A two-line Chinese heading uses a box sized for one line and relies on automatic shrinking.
 - A chart label sits on top of a value label or bar-end label after fallback-font substitution.
+- White text is applied to a white sibling card because the repair pass inspected only the text box's own transparent fill.
+- A navy rectangle is inserted behind a title or paragraph instead of adapting the font color to the actual surface.
 - The template thank-you page is rebuilt with separate text boxes, causing `谢谢观看` and `THANKS` to move or overlap on another machine.
 
 ## Required Verification Loop
@@ -47,8 +49,8 @@ Use these rules with the companion PPT authoring skill. Correct font names and c
    ```
 
    The helper changes only the preview renderer's font aliases; it never changes the PPTX font fields.
-4. Inspect every slide at full size for glyph overlap, line collision, clipping, excessive auto-shrink, and text touching other text, charts, or Logo zones.
-5. Fix issues by enlarging or moving boxes, increasing clearance, shortening copy, or splitting slides. Do not fix a collision by hiding it behind a shape.
+4. Inspect every slide at full size for glyph overlap, line collision, clipping, excessive auto-shrink, text touching other text/charts/Logo zones, and light-on-light or dark-on-dark contrast. Include grouped sibling underlays and table cells.
+5. Fix issues by adapting text color to the verified surface, enlarging or moving boxes, increasing clearance, shortening copy, or splitting slides. Do not fix a collision or contrast problem by hiding it behind a new shape.
 6. Rerender every changed slide and perform a second full-deck pass.
 7. Run `scripts/validate_deck_brand.py <deck.pptx>` and require a zero exit status.
 

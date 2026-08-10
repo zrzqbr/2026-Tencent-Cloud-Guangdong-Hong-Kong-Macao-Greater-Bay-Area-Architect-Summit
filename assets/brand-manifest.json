@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "event": {
     "id": "2026-tencent-cloud-gba-architect-summit",
     "name": "2026 腾讯云粤港澳大湾区架构师峰会",
@@ -14,7 +14,7 @@
     "preserveCanonicalOpeningOnMigration": true,
     "preserveCanonicalFinalOnMigration": true,
     "dryRunArtifacts": ["adapter-report.json", "migration-map.json", "element-migration-ledger.json", "companion-instructions.md"],
-    "safeRepairScope": ["run-font-names", "direct-text-colors", "chart-fonts", "chart-series-colors", "signed-chart-axis-ids"]
+    "safeRepairScope": ["run-font-names", "reviewed-object-text-colors", "table-cell-run-fonts", "chart-fonts", "reviewed-chart-series-colors", "signed-chart-axis-ids"]
   },
   "template": {
     "file": "assets/0815-architect-summit-template.pptx",
@@ -59,11 +59,12 @@
   "palette": {
     "title": "FD9D50",
     "body": "FFFFFF",
+    "darkText": ["00365F", "111111", "000000"],
     "warmHighlight": "FFE7B9",
     "muted": ["A7A7A7", "8B8C8C"],
     "chartSeries": ["FD9D50", "4A6FE8", "4D9557"],
     "deepNavy": ["00365F", "063B64", "0A527E"],
-    "allowedText": ["FD9D50", "FFFFFF", "FFE7B9", "A7A7A7", "8B8C8C", "4A6FE8", "4D9557", "00365F"],
+    "allowedText": ["FD9D50", "FFFFFF", "FFE7B9", "A7A7A7", "8B8C8C", "4A6FE8", "4D9557", "00365F", "111111", "000000"],
     "colorBlocks": [
       {"id": "primary-panel", "color": "063B64", "opacity": [88, 94]},
       {"id": "secondary-panel", "color": "0A527E", "opacity": [72, 84]},
@@ -175,6 +176,11 @@
     "independentTextGapInches": 0.12,
     "columnGapInches": 0.15,
     "titleFloorPt": 30,
-    "bodyFloorPt": 18
+    "bodyFloorPt": 18,
+    "migrationLedgerSchemaVersion": 3,
+    "requireFullSizeVisualReview": true,
+    "requireSurfaceContrastReview": true,
+    "maximumReadabilityOnlyTextBackingShapes": 0,
+    "maximumLargeDarkForegroundPanelAreaRatio": 0.4
   }
 }

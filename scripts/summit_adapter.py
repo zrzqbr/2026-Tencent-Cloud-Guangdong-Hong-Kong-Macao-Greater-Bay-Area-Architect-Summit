@@ -416,7 +416,7 @@ def build_mapping(intake: dict, manifest: dict) -> dict:
         destination = 4
         for item in slides:
             source_page = item["sourcePage"]
-            if source_page <= title_page or source_page == speaker_page:
+            if source_page == title_page or source_page == speaker_page:
                 continue
             if intake.get("sourceFinalThankYouCandidate") and source_page == len(slides):
                 continue
@@ -427,6 +427,11 @@ def build_mapping(intake: dict, manifest: dict) -> dict:
                     "mode": "element-level-migration",
                     "classification": item["classification"],
                     "structure": "flexible",
+                    "note": (
+                        "This source page precedes the detected title page; preserve it for explicit review instead of silently omitting it."
+                        if source_page < title_page
+                        else None
+                    ),
                 }
             )
             destination += 1
@@ -502,12 +507,20 @@ def ledger_stub(intake: dict, mapping: dict) -> dict:
                 "deleted": [],
                 "addedBrandElements": [],
                 "rasterizedElements": [],
+                "approvedTextChanges": [],
                 "after": None,
                 "notesPreserved": None,
                 "hyperlinksPreserved": None,
+                "visualReview": {
+                    "renderedAtFullSize": None,
+                    "surfaceContrastReviewed": None,
+                    "textBackingShapesAdded": None,
+                    "status": "pending",
+                    "notes": [],
+                },
             }
         )
-    return {"schemaVersion": 2, "slides": entries, "status": "stub-requires-companion-tool-completion"}
+    return {"schemaVersion": 3, "slides": entries, "status": "stub-requires-companion-tool-completion"}
 
 
 def companion_instructions(source: Path, output_dir: Path) -> str:
@@ -525,10 +538,11 @@ This Skill is the brand and migration layer. Use a presentation-authoring Skill 
 6. Never place outline or migrated body content on slides 1-3. The first outline/body content starts on output slide 4.
 7. When the source already contains the canonical opening sequence, preserve those pages in place. Preserve an existing canonical final thank-you page as well.
 8. From output slide 4 onward, keep structure flexible and migrate source objects element by element.
-9. Use only approved backgrounds and preserve their Logo exclusion zones.
-10. Place the talk's own conclusion/Q&A/contact page penultimate.
-11. Keep or append the canonical final thank-you page unchanged.
-12. Render every slide, repair overlaps/clipping, complete the ledger, then run both validators.
+9. Use approved artwork as a true background fill or bottom-most full-slide image. Never add a navy foreground field over migrated content.
+10. Resolve each text object's actual surface, including sibling cards, grouped shapes, and table cells. Use dark text on light surfaces and white text on dark surfaces; never add a readability-only backing panel.
+11. Place the talk's own conclusion/Q&A/contact page penultimate.
+12. Keep or append the canonical final thank-you page unchanged.
+13. Render every slide at full size, complete the visualReview ledger fields, repair overlaps/clipping/contrast, then run both validators.
 
 Artifacts directory: `{output_dir}`
 """

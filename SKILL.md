@@ -1,6 +1,6 @@
 ---
 name: create-gba-architect-summit-slides
-description: "Apply the official 2026 Tencent Cloud Guangdong-Hong Kong-Macao Greater Bay Area Architect Summit PowerPoint template as a reusable brand, migration, typography-safety, repair, and validation layer. This is not a standalone PPT generator: pair it with a presentation-authoring Skill, plugin, or tool. Use it to create, migrate, adapt, audit, or validate summit decks while enforcing the canonical output slides 1-3, fixed final thank-you slide, approved logo-bearing backgrounds, Tencent W7/W3 fonts, text colors, color blocks, editable element migration, and anti-overlap release checks. Keep content structures flexible after slide 3. Supports PPT/PPTX/PDF/HTML/Markdown intake."
+description: "Apply the official 2026 Tencent Cloud Guangdong-Hong Kong-Macao Greater Bay Area Architect Summit PowerPoint template as a reusable brand, editable-element migration, background-aware typography, repair, and validation layer. This is not a standalone PPT generator: pair it with a presentation-authoring Skill, plugin, or tool. Use it to create, migrate, adapt, audit, or validate summit decks while enforcing canonical output slides 1-3, the fixed final thank-you slide, approved logo-bearing backgrounds, Tencent W7/W3 fonts, surface-aware text contrast, no readability-only text backing panels, and rendered release checks. Keep content structures flexible after slide 3. Supports PPT/PPTX/PDF/HTML/Markdown intake."
 ---
 
 # 2026 GBA Architect Summit PPT Template
@@ -17,6 +17,7 @@ Pair it with the user's preferred presentation-authoring Skill/tool. The compani
 - Preserve an existing canonical opening sequence and canonical final thank-you page during migration.
 - Do not invent speaker details, portraits, claims, data, citations, or Logos.
 - Do not flatten an editable source PPTX into slide screenshots.
+- Do not add a rectangle, banner, translucent navy field, or shape fill solely to make text readable. Adapt the text to the verified visual surface.
 - Do not overwrite a source deck during repair or migration.
 
 ## Start Here
@@ -24,7 +25,7 @@ Pair it with the user's preferred presentation-authoring Skill/tool. The compani
 1. Identify the companion presentation-authoring/reading tool.
 2. Read [references/template-contract.md](references/template-contract.md). It overrides all general guidance.
 3. Read [references/brand-guidelines.md](references/brand-guidelines.md), [references/text-color-system.md](references/text-color-system.md), [references/color-block-system.md](references/color-block-system.md), and [references/typography-safety.md](references/typography-safety.md).
-4. For an existing source, run the dry-run adapter and read [references/migration-workflow.md](references/migration-workflow.md).
+4. For an existing source, run the dry-run adapter and read [references/migration-workflow.md](references/migration-workflow.md), [references/element-migration-quality.md](references/element-migration-quality.md), and [references/contrast-aware-migration.md](references/contrast-aware-migration.md).
 5. Let the companion tool build or migrate the deck while this Skill supplies the fixed pages, backgrounds, fonts, colors, Logo zones, and validation rules.
 6. Render every slide, repair text fit/overlap, then run the automated gates.
 
@@ -62,9 +63,11 @@ python3 scripts/summit_adapter.py \
 
 Use the generated report, map, ledger stub, and companion instructions. For PPTX migration, preserve textboxes, shapes, connectors, images, tables, charts, notes, and hyperlinks as independent objects. Read [references/element-migration-quality.md](references/element-migration-quality.md) and [references/source-intake.md](references/source-intake.md).
 
+For every migrated body slide, classify the actual surface beneath each text object before changing its color. White/light cards and table cells require deep navy or black text; transparent text over a dark summit background requires white text. A text shape's own fill is not sufficient evidence because the visible card may be a separate sibling inside a group. Never solve contrast by adding a backing fill behind the text.
+
 Before migrating body content, preserve the canonical pages before and including the self-introduction/avatar page. When the source already contains output slides 1-3 in canonical form, keep them in place. Body migration starts at slide 4. Preserve an existing canonical final thank-you page; otherwise append it unchanged.
 
-Safe package-level repair is optional and conservative:
+Safe package-level repair is optional and conservative. It preserves body colors unless an explicit, reviewed contrast map identifies object-level changes:
 
 ```bash
 python3 scripts/safe_repair_deck.py \
@@ -72,6 +75,8 @@ python3 scripts/safe_repair_deck.py \
   --output /absolute/path/repaired-copy.pptx \
   --report /absolute/path/repair-report.json
 ```
+
+Use `--strict-colors --contrast-map /absolute/path/contrast-map.json` together. Never use `--strict-colors` without a reviewed map.
 
 Structural migration, reflow, split/merge decisions, fixed-page insertion, and final rendered QA remain the companion tool's responsibility. Read [references/automation-and-reporting.md](references/automation-and-reporting.md).
 
@@ -81,7 +86,9 @@ Structural migration, reflow, split/merge decisions, fixed-page insertion, and f
 - Output slides 1-3 and the final slide are reserved template pages. Their order and structure are immutable.
 - Title/display/name roles: `腾讯体 W7`; body/explanation/chart-label roles: `腾讯体 W3`.
 - Set Latin, East Asian, and complex-script font fields to the exact Tencent font name.
-- Normal titles: `#FD9D50`; normal Chinese/English body copy: `#FFFFFF`.
+- Normal titles: `#FD9D50`. Body copy is surface-aware: `#FFFFFF` on dark summit surfaces; `#00365F`, `#111111`, or `#000000` on verified white/light cards and table cells.
+- Preserve meaningful source-native cards, tables, diagram nodes, and their foreground/background contrast. Clear a title/caption fill only when visual inspection proves it is obsolete decorative furniture.
+- Never add a text backing panel or globally recolor every body run to white. Resolve separate sibling underlays, group z-order, and table-cell fills first.
 - Use only approved semantic exceptions and color blocks from the references and `assets/brand-manifest.json`.
 - Treat identity baked into backgrounds as authoritative. Never duplicate, redraw, recolor, crop, distort, or cover it.
 - Keep every foreground object outside the background-specific Logo exclusion zones.
@@ -90,15 +97,18 @@ Structural migration, reflow, split/merge decisions, fixed-page insertion, and f
 
 ## Release Gate
 
-For every deck:
+For a new deck:
 
 ```bash
 python3 scripts/validate_deck_brand.py /absolute/path/deck.pptx
 ```
 
-For migrated PPTX decks, also run:
+For a migrated PPTX deck, use ledger-aware brand validation instead of the new-deck command, then run element validation:
 
 ```bash
+python3 scripts/validate_deck_brand.py /absolute/path/deck.pptx \
+  --element-migration-ledger /absolute/path/element-migration-ledger.json
+
 python3 scripts/validate_element_migration.py \
   --source /absolute/path/source.pptx \
   --destination /absolute/path/deck.pptx \
@@ -107,6 +117,8 @@ python3 scripts/validate_element_migration.py \
 ```
 
 Passing XML checks alone is insufficient. The companion tool must run its overflow checks, render all slides, visually inspect at full size, fix every issue, and rerun the gates.
+
+For schema-version 3 migration ledgers, every mapping must mark the full-size render, surface-contrast review, and text-backing audit as passed. A deck cannot ship with unresolved review fields, even when structure, fonts, and overflow checks pass.
 
 ## Assets And Utilities
 

@@ -17,6 +17,8 @@ The official template has 13 source slides, but they do not map one-to-one into 
 
 Keep content structure free from output slide 4 onward. The sample cards, circles, columns, charts, and image arrangements are not a component system.
 
+The fixed opening sequence is output slides 1-3. No outline, agenda, chapter, migrated body page, or other content page may replace or move ahead of them. The first outline/body content starts on output slide 4.
+
 ## Canvas
 
 - Use 16:9.
@@ -33,6 +35,7 @@ Keep content structure free from output slide 4 onward. The sample cards, circle
 ## Output Slide 2: Fixed Talk Title
 
 - Use the background from template source slide 3: `assets/fixed-pages/slide-02-title-background.jpg`.
+- Preserve the source page structure. Replace only the three canonical text roles; do not add, remove, regroup, resize, or reposition objects.
 - Add exactly three populated fields: main title, subtitle, and speaker field.
 - Do not invent a speaker name. Keep the field semantically empty when none is supplied.
 - Split a long topic between main title and subtitle without changing meaning.
@@ -48,9 +51,11 @@ Canonical background SHA-256: `d5cee654757974dbee9debe855ce2602750ce5d2478b48021
 ## Output Slide 3: Optional Speaker Profile
 
 - Use the background and roles from template source slide 4.
+- Preserve the original self-introduction page structure and circular photo group. Replace only the verified name, role, and photo within their canonical roles.
 - When verified speaker name, role, and photo exist, populate the exact roles below.
 - When those inputs are missing, use only `assets/fixed-pages/slide-03-original-background.jpg` and leave the page blank.
 - Never invent speaker data or substitute a generated portrait.
+- Do not place outline or body content on this page. The first such content belongs on output slide 4.
 
 | Role | Standard canvas, inches | Font | Size | Color |
 | --- | --- | --- | --- | --- | --- |
@@ -97,8 +102,9 @@ Approved background hashes:
 ## Release Gate
 
 1. Run the companion presentation tool's overflow checks.
-2. Render and visually inspect every slide at full size.
-3. Complete migration mapping and the element ledger when migrating an existing PPTX.
-4. Run `scripts/validate_element_migration.py` for PPTX migration.
-5. Run `scripts/validate_deck_brand.py` for every deck.
-6. Fix every error, rerender affected slides, and rerun both gates.
+2. Confirm output slides 1-3 remain the canonical fixed opening sequence and body content begins on slide 4.
+3. Render and visually inspect every slide at full size.
+4. Complete migration mapping and the element ledger when migrating an existing PPTX.
+5. Run `scripts/validate_element_migration.py` for PPTX migration.
+6. Run `scripts/validate_deck_brand.py` for every deck.
+7. Fix every error, rerender affected slides, and rerun both gates.

@@ -117,6 +117,7 @@ def slide_report(
     text = text_value(root).strip()
     runs = [run for run in text_runs(root) if run["text"].strip()]
     candidates = slide_and_layout_images(archive, path, root)
+    local_images = image_candidates(archive, path, root)
     background_id, background = background_match(candidates, manifest, canvas)
     allowed_fonts = {manifest["fonts"]["title"], manifest["fonts"]["body"]}
     palette = approved_colors(manifest)
@@ -192,6 +193,17 @@ def slide_report(
         "colorSuggestions": sorted(color_suggestions.values(), key=lambda item: item["from"]),
         "approvedBackground": background_id,
         "backgroundInheritedFromLayout": bool(background and background["kind"].startswith("layout-")),
+        "containsCanonicalThankYou": any(
+            sha256(candidate["data"]) == manifest["fixedPages"]["thanks"]["sha256"]
+            for candidate in candidates
+        ),
+        "localFullSlideImageCount": sum(
+            1
+            for candidate in local_images
+            if candidate["kind"] == "picture"
+            and box_matches(candidate.get("box"), (0, 0, *canvas), 2000)
+            and not candidate.get("cropped")
+        ),
         "warnings": warnings,
     }
 
@@ -202,10 +214,32 @@ def inspect_pptx(source: Path, manifest: dict) -> dict:
         canvas = canvas_from_presentation(presentation)
         slides = [slide_report(archive, path, index, len(paths), canvas, manifest) for index, path in enumerate(paths, 1)]
         issues = negative_chart_axis_ids(archive)
+        canonical_opening = (
+            len(slides) >= 3
+            and [item["approvedBackground"] for item in slides[:3]]
+            == ["cover", "title", "content-wave-right-logo"]
+        )
+        final_thanks_candidate = bool(
+            slides
+            and (
+                slides[-1]["containsCanonicalThankYou"]
+                or re.search(r"谢谢|感谢|thank\s*you|thanks", slides[-1]["visibleText"], re.IGNORECASE)
+                or (
+                    not slides[-1]["visibleText"].strip()
+                    and slides[-1]["objectCounts"]["images"] == 1
+                    and sum(slides[-1]["objectCounts"].values()) == 1
+                    and slides[-1]["localFullSlideImageCount"] == 1
+                )
+            )
+        )
         return {
             "pageCount": len(paths),
             "canvasEmu": list(canvas),
             "slides": slides,
+            "canonicalTemplateSource": sha256(source) == manifest["template"]["sha256"],
+            "canonicalOpeningSequence": canonical_opening,
+            "canonicalFinalThankYou": bool(slides and slides[-1]["containsCanonicalThankYou"]),
+            "sourceFinalThankYouCandidate": final_thanks_candidate,
             "totals": {
                 "fontReplacementCandidates": sum(item["fontReplacementCandidates"] for item in slides),
                 "colorReplacementCandidates": sum(item["colorReplacementCandidates"] for item in slides),
@@ -269,14 +303,93 @@ def source_intake(source: Path, manifest: dict) -> dict:
     return inspect_markdown(source)
 
 
+def likely_title_page(slides: list[dict]) -> int:
+    candidates = []
+    for item in slides[:4]:
+        text = item.get("visibleText", "").strip()
+        if not text:
+            continue
+        score = 0
+        if item.get("approvedBackground") == "title":
+            score += 100
+        if item["classification"] in {"source-opening-or-title", "section-divider-candidate"}:
+            score += 20
+        if "主讲人" in text or "speaker" in text.lower():
+            score += 20
+        if sum(item.get("objectCounts", {}).values()) <= 6:
+            score += 10
+        if item["sourcePage"] == 2:
+            score += 5
+        candidates.append((score, item["sourcePage"]))
+    return max(candidates)[1] if candidates else 1
+
+
+def likely_speaker_page(slides: list[dict], title_page: int) -> int | None:
+    explicit = next((item["sourcePage"] for item in slides[:6] if item["classification"] == "speaker-profile-candidate"), None)
+    if explicit:
+        return explicit
+    next_page = title_page + 1
+    if next_page <= len(slides) and next_page <= 4:
+        item = slides[next_page - 1]
+        if not item.get("visibleText", "").strip() and sum(item.get("objectCounts", {}).values()) <= 1:
+            return next_page
+    return None
+
+
 def build_mapping(intake: dict, manifest: dict) -> dict:
     slides = intake.get("slides", [])
-    speaker_page = next((item["sourcePage"] for item in slides if item["classification"] == "speaker-profile-candidate"), None)
+    title_page = likely_title_page(slides) if slides else 1
+    speaker_page = likely_speaker_page(slides, title_page) if slides else None
     mappings = []
-    if slides:
+    if intake.get("canonicalTemplateSource"):
+        roles = manifest["template"]["sourceSlideRoles"]
+        mappings.extend(
+            [
+                {"sourcePages": [roles["cover"]], "destinationSlides": [1], "mode": "preserve-canonical-cover"},
+                {"sourcePages": [roles["talkTitle"]], "destinationSlides": [2], "mode": "preserve-canonical-title-structure"},
+                {"sourcePages": [roles["speaker"]], "destinationSlides": [3], "mode": "preserve-canonical-speaker-structure"},
+                {"sourcePages": [roles["thanks"]], "destinationSlides": ["last"], "mode": "preserve-canonical-final-thanks"},
+            ]
+        )
+    elif intake.get("canonicalOpeningSequence"):
         mappings.append(
             {
-                "sourcePages": [1],
+                "sourcePages": [1, 2, 3],
+                "destinationSlides": [1, 2, 3],
+                "mode": "preserve-canonical-opening-sequence",
+                "note": "Keep the cover, title page, and speaker/avatar page in place without structural changes.",
+            }
+        )
+        body_end = len(slides) - (1 if intake.get("sourceFinalThankYouCandidate") else 0)
+        for source_page in range(4, body_end + 1):
+            item = slides[source_page - 1]
+            mappings.append(
+                {
+                    "sourcePages": [source_page],
+                    "destinationSlides": [source_page],
+                    "mode": "element-level-migration",
+                    "classification": item["classification"],
+                    "structure": "flexible",
+                }
+            )
+        mappings.append(
+            {
+                "sourcePages": [len(slides)] if intake.get("sourceFinalThankYouCandidate") else [],
+                "destinationSlides": ["last"],
+                "mode": (
+                    "preserve-canonical-final-thanks"
+                    if intake.get("canonicalFinalThankYou")
+                    else "replace-source-thanks-with-canonical-final-thanks"
+                    if intake.get("sourceFinalThankYouCandidate")
+                    else "append-canonical-final-thanks"
+                ),
+            }
+        )
+    elif slides:
+        mappings.append({"sourcePages": [], "destinationSlides": [1], "mode": "insert-canonical-cover"})
+        mappings.append(
+            {
+                "sourcePages": [title_page],
                 "destinationSlides": [2],
                 "mode": "extract-title-fields-only",
                 "note": "Use the exact title-page field geometry; do not copy the source visual skin.",
@@ -291,10 +404,21 @@ def build_mapping(intake: dict, manifest: dict) -> dict:
                     "note": "Populate only verified speaker data and photo; otherwise leave slide 3 blank.",
                 }
             )
+        else:
+            mappings.append(
+                {
+                    "sourcePages": [],
+                    "destinationSlides": [3],
+                    "mode": "reserve-canonical-speaker-page-blank",
+                    "note": "Keep the canonical speaker/avatar page position and background; do not move outline content onto it.",
+                }
+            )
         destination = 4
         for item in slides:
             source_page = item["sourcePage"]
-            if source_page == 1 or source_page == speaker_page:
+            if source_page <= title_page or source_page == speaker_page:
+                continue
+            if intake.get("sourceFinalThankYouCandidate") and source_page == len(slides):
                 continue
             mappings.append(
                 {
@@ -306,10 +430,55 @@ def build_mapping(intake: dict, manifest: dict) -> dict:
                 }
             )
             destination += 1
+        mappings.append(
+            {
+                "sourcePages": [len(slides)] if intake.get("sourceFinalThankYouCandidate") else [],
+                "destinationSlides": ["last"],
+                "mode": (
+                    "preserve-canonical-final-thanks"
+                    if intake.get("canonicalFinalThankYou")
+                    else "replace-source-thanks-with-canonical-final-thanks"
+                    if intake.get("sourceFinalThankYouCandidate")
+                    else "append-canonical-final-thanks"
+                ),
+            }
+        )
+    else:
+        mappings.extend(
+            [
+                {"sourcePages": [], "destinationSlides": [1], "mode": "insert-canonical-cover"},
+                {"sourcePages": [], "destinationSlides": [2], "mode": "populate-canonical-title-fields-from-source-metadata"},
+                {"sourcePages": [], "destinationSlides": [3], "mode": "reserve-canonical-speaker-page"},
+            ]
+        )
+        if intake.get("pages"):
+            for destination, page in enumerate(intake["pages"], 4):
+                mappings.append(
+                    {
+                        "sourcePages": [page["sourcePage"]],
+                        "destinationSlides": [destination],
+                        "mode": "reconstruct-page-content-after-fixed-opening",
+                        "structure": "flexible",
+                    }
+                )
+        else:
+            mappings.append(
+                {
+                    "sourceUnits": ["first-outline-or-document-content-unit"],
+                    "destinationSlides": [4],
+                    "mode": "plan-content-after-fixed-opening",
+                    "note": "Start the supplied outline/document content after the speaker/avatar page, never on slides 1-3.",
+                }
+            )
+        mappings.append({"sourcePages": [], "destinationSlides": ["last"], "mode": "append-canonical-final-thanks"})
     return {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "templateSourceSlides": manifest["template"]["sourceSlideRoles"],
         "fixedDestinationSlides": {"cover": 1, "title": 2, "speaker": 3, "thanks": "last"},
+        "fixedOpeningSequence": [1, 2, 3],
+        "bodyContentStartsAtDestinationSlide": 4,
+        "outlineFirstContentStartsAtDestinationSlide": 4,
+        "migrationRule": "Preserve the canonical pages before and including the self-introduction/avatar page; migrate body content only after them.",
         "excludedTemplateSlides": [manifest["template"]["sourceSlideRoles"]["assetLibrary"]],
         "mappings": mappings,
         "penultimateRule": "The talk's own conclusion/Q&A/contact page is penultimate.",
@@ -350,14 +519,16 @@ This Skill is the brand and migration layer. Use a presentation-authoring Skill 
 
 1. Preserve the canonical source template package and embedded Tencent fonts.
 2. Output slide 1 comes from template source slide 1 unchanged.
-3. Output slide 2 comes from template source slide 3 with exact fields from the source title.
+3. Output slide 2 comes from template source slide 3. Preserve its structure and change only the exact title/subtitle/speaker fields.
 4. Template source slide 2 is an icon library only and never becomes an output slide.
-5. Output slide 3 comes from template source slide 4. Populate verified speaker information or leave the approved background blank.
-6. From output slide 4 onward, keep structure flexible and migrate source objects element by element.
-7. Use only approved backgrounds and preserve their Logo exclusion zones.
-8. Place the talk's own conclusion/Q&A/contact page penultimate.
-9. Append the canonical final thank-you page unchanged.
-10. Render every slide, repair overlaps/clipping, complete the ledger, then run both validators.
+5. Output slide 3 comes from template source slide 4. Preserve the page structure and photo group; populate verified speaker information or leave the approved background blank.
+6. Never place outline or migrated body content on slides 1-3. The first outline/body content starts on output slide 4.
+7. When the source already contains the canonical opening sequence, preserve those pages in place. Preserve an existing canonical final thank-you page as well.
+8. From output slide 4 onward, keep structure flexible and migrate source objects element by element.
+9. Use only approved backgrounds and preserve their Logo exclusion zones.
+10. Place the talk's own conclusion/Q&A/contact page penultimate.
+11. Keep or append the canonical final thank-you page unchanged.
+12. Render every slide, repair overlaps/clipping, complete the ledger, then run both validators.
 
 Artifacts directory: `{output_dir}`
 """

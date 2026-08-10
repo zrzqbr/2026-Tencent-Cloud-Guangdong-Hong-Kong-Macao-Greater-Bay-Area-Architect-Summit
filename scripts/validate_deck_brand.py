@@ -99,6 +99,16 @@ def validate_field(errors: list[str], slide_number: int, shape, field: dict, can
         fonts = set(run["fonts"].values())
         if fonts != {field["font"]}:
             errors.append(f"Slide {slide_number} field {field['id']} must set latin/ea/cs to {field['font']}; found {run['fonts']}")
+    if "fixedText" in field and text_value(shape).strip() != field["fixedText"]:
+        errors.append(f"Slide {slide_number} field {field['id']} text must remain {field['fixedText']!r}")
+    if field.get("alignment"):
+        expected_alignment = {"center": "ctr"}.get(field["alignment"], field["alignment"])
+        alignments = {node.get("algn") for node in shape.findall(".//a:pPr", {"a": "http://schemas.openxmlformats.org/drawingml/2006/main"})}
+        if alignments != {expected_alignment}:
+            errors.append(
+                f"Slide {slide_number} field {field['id']} alignment must remain {field['alignment']}; "
+                f"found {sorted(str(value) for value in alignments)}"
+            )
 
 
 def content_objects(root) -> list:
@@ -176,7 +186,15 @@ def validate(deck: Path, element_migration: bool = False) -> list[str]:
         if not title_spec or title_spec["id"] != "title":
             errors.append("Slide 2 must use the canonical title-page background from template source slide 3")
         slide2_shapes = [shape for shape in roots[1].findall(".//p:sp", {"p": "http://schemas.openxmlformats.org/presentationml/2006/main"}) if text_value(shape).strip()]
+        slide2_non_background = [
+            node
+            for node in content_objects(roots[1])
+            if node.tag.rsplit("}", 1)[-1] != "pic"
+            or not box_matches(shape_box(node), (0, 0, *canvas), 2000)
+        ]
         fields = manifest["fixedPages"]["title"]["fields"]
+        if len(slide2_non_background) != len(fields) or any(node.tag.rsplit("}", 1)[-1] != "sp" for node in slide2_non_background):
+            errors.append("Slide 2 structure is fixed: it may contain only the three canonical title text roles")
         if len(slide2_shapes) != len(fields):
             errors.append(f"Slide 2 must contain exactly {len(fields)} populated text fields; found {len(slide2_shapes)}")
         unmatched = list(slide2_shapes)
@@ -220,6 +238,8 @@ def validate(deck: Path, element_migration: bool = False) -> list[str]:
             photo = next((node for node in slide3_non_background if box_matches(shape_box(node), photo_box, 24000)), None)
             if photo is None:
                 errors.append(f"Slide 3 populated speaker page is missing the circular photo role at {photo_box}")
+            elif photo.tag.rsplit("}", 1)[-1] != "grpSp":
+                errors.append("Slide 3 speaker photo must preserve the canonical template photo group and crop structure")
         elif slide3_text:
             errors.append("Slide 3 must be fully blank when no verified speaker profile is supplied")
 

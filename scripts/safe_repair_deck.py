@@ -186,7 +186,7 @@ def repair_deck(
         "charts": [],
         "totals": {"fontChanges": 0, "colorChanges": 0, "axisIdsRepaired": 0},
         "structuralActionsStillRequired": [
-            "Insert or preserve the canonical fixed opening pages.",
+            "Insert or preserve the immutable canonical cover, title, and speaker/avatar pages as output slides 1-3.",
             "Replace legacy backgrounds with approved summit backgrounds through the companion presentation tool.",
             "Append the canonical single-image thank-you page.",
             "Render every slide and repair text overlap or clipping.",

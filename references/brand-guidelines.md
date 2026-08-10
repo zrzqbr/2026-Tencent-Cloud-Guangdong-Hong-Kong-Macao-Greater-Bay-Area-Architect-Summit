@@ -67,12 +67,13 @@ Keep orange-gold as the dominant accent. Use blue and green as secondary data co
 ## Page Roles
 
 - Slide 1, main KV: use `background-01-cover.jpg` unchanged as the entire slide. Add no talk title, subtitle, speaker identity, panel, shape, or overlay.
-- Slide 2, talk information: use `background-02-content.jpg` and preserve the source title-page typography and proportional coordinates. The values below are for a 13.333 x 7.5 inch canvas; multiply positions and dimensions by 1.5 on the original 20 x 11.25 inch canvas:
+- Slide 2, talk information: use `background-02-content.jpg` and preserve the complete source title-page structure, typography, and proportional coordinates. Replace only the three defined text roles. The values below are for a 13.333 x 7.5 inch canvas; multiply positions and dimensions by 1.5 on the original 20 x 11.25 inch canvas:
   - Main title: x 2.00, y 2.04, w 9.31, h 1.23; `腾讯体 W7`; 88 pt; `#FD9D50`.
   - Subtitle: x 3.05, y 3.22, w 7.21, h 0.76; `腾讯体 W7`; 54 pt; `#FD9D50`.
   - Speaker: x 5.19, y 5.27, w 2.87, h 0.39; `腾讯体 W3`; 28 pt; `#FFFFFF`.
   - Split a long detected topic into a concise main title and subtitle without changing its meaning. Add a speaker name only when supplied; otherwise leave the name portion empty.
-- Slide 3, optional speaker profile: use template source slide 4. Populate its exact label/name/role/photo roles only when verified speaker data exists; otherwise leave `background-03-section.jpg` blank. Never invent speaker data or a portrait.
+- Slide 3, optional speaker profile: preserve template source slide 4's complete self-introduction/avatar structure and photo group. Populate its exact label/name/role/photo roles only when verified speaker data exists; otherwise leave `background-03-section.jpg` blank. Never invent speaker data or a portrait, and never place outline/body content here.
+- Slide 4: begin the outline, agenda, chapter sequence, or migrated body content. Slides 1-3 remain reserved even when the supplied outline starts immediately with substantive content.
 - Section divider: one short chapter statement with a strong numeral or thematic phrase.
 - Content: choose any structure suitable for the idea, including diagrams, comparisons, evidence, images, code, or narrative statements.
 - Penultimate slide: place the talk's own conclusion, contact detail, or Q&A prompt on an approved content or section background.

@@ -1,4 +1,4 @@
 interface:
   display_name: "2026 粤港澳峰会 PPT 模板"
   short_description: "峰会品牌模板、跨格式迁移、保守修复、排版安全与自动验收层"
-  default_prompt: "Use $create-gba-architect-summit-slides with my presentation-authoring tool as the 2026 summit brand and migration layer; keep structures flexible after slide 3, preserve editability, and run rendered plus automated validation."
+  default_prompt: "Use $create-gba-architect-summit-slides with my presentation-authoring tool as the 2026 summit brand and migration layer; preserve the immutable cover, title, speaker/avatar, and final thank-you pages, start body content on slide 4, keep later structures flexible, preserve editability, and run rendered plus automated validation."

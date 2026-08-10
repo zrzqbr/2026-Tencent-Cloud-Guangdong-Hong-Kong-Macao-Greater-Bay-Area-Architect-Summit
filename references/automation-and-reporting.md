@@ -19,6 +19,8 @@ Outputs:
 
 Use `--destination /absolute/path/output.pptx` to add brand validation of an existing migrated output.
 
+The map always reserves output slides 1-3 and starts outline/body content on slide 4. If the source already contains a canonical opening sequence or canonical final thank-you page, the map marks those pages for preservation instead of rebuilding them.
+
 ## Palette Queries
 
 ```bash

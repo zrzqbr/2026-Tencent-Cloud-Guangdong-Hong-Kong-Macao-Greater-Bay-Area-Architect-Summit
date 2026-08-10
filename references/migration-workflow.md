@@ -27,11 +27,13 @@ See [source-intake.md](source-intake.md) for format-specific requirements.
 - Destination slide 2: template source slide 3, populated with the detected title hierarchy and supplied speaker field.
 - Template source slide 2: excluded from output; use its SVGs only as optional visual assets.
 - Destination slide 3: template source slide 4. Populate verified speaker details/photo or leave the approved background blank.
-- Destination slide 4 onward: migrate source content with flexible structure.
+- Destination slide 4 onward: migrate source content with flexible structure. The source outline's first content unit starts here.
 - Penultimate destination slide: the talk's own conclusion, Q&A, contact page, or closing statement.
 - Final destination slide: canonical rendered template source slide 13, unchanged.
 
 Account for every source page. One source page may split into several destination slides and several source pages may merge into one destination slide. Record the mapping explicitly. Omission requires user approval.
+
+When the source already contains the canonical cover, title, and self-introduction/avatar pages, preserve those opening pages in place rather than rebuilding or mapping body content over them. Likewise, preserve an existing canonical final thank-you page. For a non-canonical source, insert the canonical opening sequence first and begin source body migration at destination slide 4.
 
 ## Element-Level PPTX Migration
 

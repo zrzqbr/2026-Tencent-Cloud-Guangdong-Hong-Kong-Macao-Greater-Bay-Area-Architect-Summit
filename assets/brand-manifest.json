@@ -9,6 +9,10 @@
     "standaloneGenerator": false,
     "supportedSourceTypes": ["ppt", "pptx", "pdf", "html", "htm", "md", "markdown"],
     "bodyStructureAfterSlide3": "flexible",
+    "fixedOpeningDestinationSlides": [1, 2, 3],
+    "bodyContentStartsAtDestinationSlide": 4,
+    "preserveCanonicalOpeningOnMigration": true,
+    "preserveCanonicalFinalOnMigration": true,
     "dryRunArtifacts": ["adapter-report.json", "migration-map.json", "element-migration-ledger.json", "companion-instructions.md"],
     "safeRepairScope": ["run-font-names", "direct-text-colors", "chart-fonts", "chart-series-colors", "signed-chart-axis-ids"]
   },
@@ -125,13 +129,16 @@
       "sourceTemplateSlide": 1,
       "file": "assets/fixed-pages/slide-01-main-kv.jpg",
       "sha256": "136768a6a056da9eb227e2d92c90f2eb1d0bd23f29b67d960b6b38bd2cb0d8cf",
-      "mode": "single-image-or-canonical-layout"
+      "mode": "single-image-or-canonical-layout",
+      "structureMutable": false
     },
     "title": {
       "destinationSlide": 2,
       "sourceTemplateSlide": 3,
       "backgroundFile": "assets/fixed-pages/slide-02-title-background.jpg",
       "sha256": "d5cee654757974dbee9debe855ce2602750ce5d2478b48021e7ea6196edd6ac3",
+      "mode": "exact-template-roles-only",
+      "structureMutable": false,
       "fields": [
         {"id": "main-title", "boxOriginalEmu": [2741930, 2799317, 12761126, 1692275], "boxStandardEmu": [1827953, 1866211, 8507417, 1128183], "font": "腾讯体 W7", "sizeHundredthPt": 8800, "color": "FD9D50", "alignment": "center"},
         {"id": "subtitle", "boxOriginalEmu": [4175590, 4419724, 9893807, 1038225], "boxStandardEmu": [2783727, 2946483, 6595871, 692150], "font": "腾讯体 W7", "sizeHundredthPt": 5400, "color": "FD9D50", "alignment": "center"},
@@ -145,18 +152,21 @@
       "sha256": "a05520185110930bcfd659528f6d5241d026ee04598932db9417e4fcc00145a3",
       "optional": true,
       "blankWhenMissing": true,
+      "mode": "exact-template-page-or-blank-background",
+      "structureMutable": false,
       "fields": [
-        {"id": "section-label", "boxOriginalEmu": [1080335, 462882, 4160925, 582295], "boxStandardEmu": [720223, 308588, 2773950, 388197], "font": "腾讯体 W7", "sizeHundredthPt": 3200, "color": "FD9D50"},
+        {"id": "section-label", "boxOriginalEmu": [1080335, 462882, 4160925, 582295], "boxStandardEmu": [720223, 308588, 2773950, 388197], "font": "腾讯体 W7", "sizeHundredthPt": 3200, "color": "FD9D50", "fixedText": "自我介绍"},
         {"id": "speaker-name", "boxOriginalEmu": [8429620, 3357550, 5340840, 1384935], "boxStandardEmu": [5619747, 2238367, 3560560, 923290], "font": "腾讯体 W7", "sizeHundredthPt": 7200, "color": "FD9D50"},
         {"id": "speaker-role", "boxOriginalEmu": [8429619, 4838286, 6743704, 615315], "boxStandardEmu": [5619746, 3225524, 4495803, 410210], "font": "腾讯体 W3", "sizeHundredthPt": 3200, "color": "FFFFFF"},
-        {"id": "speaker-photo", "boxOriginalEmu": [4603482, 3143236, 3280738, 3280742], "boxStandardEmu": [3068988, 2095491, 2187159, 2187161], "shape": "circle-crop"}
+        {"id": "speaker-photo", "boxOriginalEmu": [4603482, 3143236, 3280738, 3280742], "boxStandardEmu": [3068988, 2095491, 2187159, 2187161], "shape": "template-photo-group-circle-crop"}
       ]
     },
     "thanks": {
       "sourceTemplateSlide": 13,
       "file": "assets/fixed-pages/slide-final-thanks.png",
       "sha256": "3621e27a622845f06136d4f1e8f3ae9ce84cd7cc6f5cfaeca9728b1c702223f4",
-      "mode": "single-image-only"
+      "mode": "single-image-only",
+      "structureMutable": false
     }
   },
   "release": {

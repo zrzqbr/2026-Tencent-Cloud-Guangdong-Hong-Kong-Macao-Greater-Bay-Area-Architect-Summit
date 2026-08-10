@@ -13,6 +13,8 @@ Pair it with the user's preferred presentation-authoring Skill/tool. The compani
 
 - Do not present this Skill as a standalone PPT generator.
 - Do not force the sample template's cards, circles, columns, chart treatment, or layouts after slide 3.
+- Never place outline content, migrated body content, agenda content, or a chapter page on output slides 1-3.
+- Preserve an existing canonical opening sequence and canonical final thank-you page during migration.
 - Do not invent speaker details, portraits, claims, data, citations, or Logos.
 - Do not flatten an editable source PPTX into slide screenshots.
 - Do not overwrite a source deck during repair or migration.
@@ -30,11 +32,12 @@ Pair it with the user's preferred presentation-authoring Skill/tool. The compani
 
 - Template source slide 1 -> output slide 1, fixed main KV.
 - Template source slide 2 -> optional SVG asset library only; never output.
-- Template source slide 3 -> output slide 2, exact title/subtitle/speaker fields.
-- Template source slide 4 -> output slide 3, optional speaker profile. Populate verified data/photo or leave the approved background blank.
+- Template source slide 3 -> output slide 2. Keep the page structure unchanged and replace only the exact title/subtitle/speaker fields.
+- Template source slide 4 -> output slide 3. Keep its self-introduction/avatar structure and photo group unchanged; populate verified data/photo or leave the approved background blank.
 - Template source slides 5-12 -> examples only, never required structures.
 - Template source slide 13 -> final output slide, unchanged canonical rendered image.
 - Put the talk's own conclusion/Q&A/contact page immediately before the final thank-you slide.
+- Start the first outline item, agenda item, or migrated body page on output slide 4, after the speaker/avatar page.
 
 Read [references/template-source-map.md](references/template-source-map.md) for package details and the known signed chart-axis compatibility issue.
 
@@ -43,8 +46,9 @@ Read [references/template-source-map.md](references/template-source-map.md) for 
 1. Let the companion Skill research, outline, plan, author, and export.
 2. Start from `assets/0815-architect-summit-template.pptx` when preserving embedded Tencent fonts and master/layout behavior is useful.
 3. Lock output slides 1-3 and the final slide before authoring the body.
-4. From output slide 4 onward, let structure follow the content.
-5. Apply one approved background per slide, protect its Logo zones, use approved text roles/colors, and keep the talk conclusion penultimate.
+4. Map the first outline content unit to output slide 4. Do not consume slides 1-3 as outline pages.
+5. From output slide 4 onward, let structure follow the content.
+6. Apply one approved background per slide, protect its Logo zones, use approved text roles/colors, and keep the talk conclusion penultimate.
 
 ## Migration Workflow
 
@@ -57,6 +61,8 @@ python3 scripts/summit_adapter.py \
 ```
 
 Use the generated report, map, ledger stub, and companion instructions. For PPTX migration, preserve textboxes, shapes, connectors, images, tables, charts, notes, and hyperlinks as independent objects. Read [references/element-migration-quality.md](references/element-migration-quality.md) and [references/source-intake.md](references/source-intake.md).
+
+Before migrating body content, preserve the canonical pages before and including the self-introduction/avatar page. When the source already contains output slides 1-3 in canonical form, keep them in place. Body migration starts at slide 4. Preserve an existing canonical final thank-you page; otherwise append it unchanged.
 
 Safe package-level repair is optional and conservative:
 
@@ -72,6 +78,7 @@ Structural migration, reflow, split/merge decisions, fixed-page insertion, and f
 ## Non-Negotiable Brand Rules
 
 - 16:9 only.
+- Output slides 1-3 and the final slide are reserved template pages. Their order and structure are immutable.
 - Title/display/name roles: `腾讯体 W7`; body/explanation/chart-label roles: `腾讯体 W3`.
 - Set Latin, East Asian, and complex-script font fields to the exact Tencent font name.
 - Normal titles: `#FD9D50`; normal Chinese/English body copy: `#FFFFFF`.

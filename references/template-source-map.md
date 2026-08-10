@@ -9,7 +9,7 @@ The file contains 13 slides, 6 layouts, 1 master, 125 media entries, 12 embedded
 | 1 | Main KV | Fixed output slide 1 |
 | 2 | 56 SVG icon examples | Asset library only; exclude from output |
 | 3 | Talk title | Fixed output slide 2 |
-| 4 | Speaker profile | Optional output slide 3 |
+| 4 | Speaker profile | Fixed-structure output slide 3; populate verified roles or retain the blank canonical background |
 | 5 | Agenda example | Optional reference |
 | 6 | Section example | Optional reference |
 | 7-12 | Content examples | Optional reference; no structural mandate |
